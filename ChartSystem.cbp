@@ -94,6 +94,10 @@
 		<Unit filename="src/ui/Pages.cpp">
 			<Option compilerVar="CPP" />
 		</Unit>
+		<Unit filename="src/ui/ExportPathDialog.h" />
+		<Unit filename="src/ui/ExportPathDialog.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
 		<Unit filename="src/utils/RenderUtils.h" />
 		<Unit filename="src/utils/FileDataReader.h" />
 		<Unit filename="src/utils/FileDataReader.cpp">
@@ -102,6 +106,10 @@
 		<Unit filename="src/utils/DataAnalyzer.h" />
 		<Unit filename="src/utils/ImageExporter.h" />
 		<Unit filename="src/utils/ImageExporter.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/utils/FilePathUtils.h" />
+		<Unit filename="src/utils/FilePathUtils.cpp">
 			<Option compilerVar="CPP" />
 		</Unit>
 		<Extensions>
