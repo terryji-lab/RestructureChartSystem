@@ -3,8 +3,7 @@
 #include <string>
 #include <functional>
 #include "Widget.h"
-
-typedef std::basic_string<TCHAR> tstring;
+#include "../common/Types.h"
 
 // ==================== 按钮控件类 ====================
 // 继承 Widget，实现圆角按钮。支持三态视觉反馈：

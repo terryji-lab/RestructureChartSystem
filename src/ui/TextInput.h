@@ -2,8 +2,7 @@
 #include <easyx.h>
 #include <string>
 #include "Card.h"
-
-typedef std::basic_string<TCHAR> tstring;
+#include "../common/Types.h"
 
 // ==================== 文本输入框控件类 ====================
 // 继承 Card，在圆角卡片上叠加文本编辑功能。

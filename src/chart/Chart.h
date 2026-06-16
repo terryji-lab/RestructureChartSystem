@@ -2,8 +2,7 @@
 #include <easyx.h>
 #include <string>
 #include <vector>
-
-typedef std::basic_string<TCHAR> tstring;
+#include "../common/Types.h"
 
 struct ChartItem
 {

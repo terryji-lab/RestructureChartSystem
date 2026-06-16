@@ -4,8 +4,7 @@
 #include "../utils/RenderUtils.h"
 #include "Widget.h"
 #include "Button.h"
-
-typedef std::basic_string<TCHAR> tstring;
+#include "../common/Types.h"
 
 // ==================== Card —— 圆角背景框 ====================
 // 继承 Widget，提供统一的阴影 + 背景 + 标题绘制。
