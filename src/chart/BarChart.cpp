@@ -109,8 +109,9 @@ void BarChart::draw()
     if (data.empty())
     {
         settextcolor(RED);
-        settextstyle(24, 0, _T("Arial"));
-        outtextxy(leftX + 50, topY + 50, _T("No data to draw bar chart"));
+        settextstyle(40, 0, _T("Arial"));
+        int tw = textwidth(_T("No Data"));
+        outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("No Data"));
         return;
     }
 

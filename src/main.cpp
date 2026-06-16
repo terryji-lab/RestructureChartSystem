@@ -77,7 +77,7 @@ int main()
                 popup.setColors(darkenColor(popupTheme.bgColor, 35),
                                 popupTheme.cardColor, popupTheme.textColor);
                 popup.setAccentColor(RGB(220, 60, 60));
-                popup.setButtonColors(popupTheme.btnNormal, popupTheme.btnHover, popupTheme.btnPress);
+                popup.setButtonColors(RGB(200, 55, 55), RGB(235, 75, 75), RGB(160, 35, 35));
                 popup.setMessage(_T("Please enter a CSV file path."));
                 popup.setError(true);
                 popup.showModal();
@@ -130,7 +130,7 @@ int main()
                 popup.setColors(darkenColor(popupTheme.bgColor, 35),
                                 popupTheme.cardColor, popupTheme.textColor);
                 popup.setAccentColor(RGB(220, 60, 60));   // 错误红色
-                popup.setButtonColors(popupTheme.btnNormal, popupTheme.btnHover, popupTheme.btnPress);
+                popup.setButtonColors(RGB(200, 55, 55), RGB(235, 75, 75), RGB(160, 35, 35));
                 popup.setMessage(_T("Could not read the file:"));
                 popup.setDetail(errMsg);
                 popup.setError(true);
