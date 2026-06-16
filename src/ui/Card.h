@@ -2,6 +2,7 @@
 #include <easyx.h>
 #include <string>
 #include "../utils/RenderUtils.h"
+#include "Button.h"
 
 typedef std::basic_string<TCHAR> tstring;
 
@@ -51,4 +52,30 @@ public:
 
     void setText(const tstring& t);
     void draw() const override;
+};
+
+// ==================== PopupCard —— 模态弹窗 ====================
+// 继承 Card，封装弹窗的绘制与阻塞交互逻辑。
+// 复用 Button 作为确认按钮，支持 hover 高亮。
+class PopupCard : public Card
+{
+public:
+    PopupCard(int x, int y, int w, int h, const tstring& title);
+
+    void setMessage(const tstring& msg);
+    void setDetail(const tstring& detail);
+    void setAccentColor(COLORREF c);
+    void setButtonColors(COLORREF normal, COLORREF hover, COLORREF press);
+    void setError(bool isError);
+
+    void draw() const override;
+    void showModal();
+
+private:
+    tstring m_message;
+    tstring m_detail;
+    COLORREF m_accentColor;
+    Button m_okBtn;
+    bool m_shouldClose;
+    bool m_isError;
 };

@@ -19,100 +19,6 @@ static const std::vector<ColorTheme> PRESET_THEMES = {
     { _T("Dark"),    { RGB(80,88,112), RGB(101,112,144), RGB(69,80,104), RGB(112,128,160), RGB(88,96,128), RGB(107,120,152), RGB(74,85,120), RGB(92,104,136) }, RGB(180,180,190), RGB(60,60,70), RGB(220,220,225), RGB(42,44,52), RGB(58,60,70), RGB(80,88,112), RGB(112,128,160), RGB(69,80,104), RGB(140,160,200) },
 };
 
-
-// Theme-aware popup for successful CSV import.
-static void showImportSuccessPopup(const ColorTheme& theme, const tstring& fileTitle)
-{
-    const int boxW = 500;
-    const int boxH = 220;
-    const int boxX = (1200 - boxW) / 2;
-    const int boxY = (800 - boxH) / 2;
-
-    const int btnW = 150;
-    const int btnH = 42;
-    const int btnX = boxX + (boxW - btnW) / 2;
-    const int btnY = boxY + boxH - 68;
-
-    BeginBatchDraw();
-
-    // Shadow
-    setfillcolor(darkenColor(theme.bgColor, 35));
-    solidrectangle(boxX + 10, boxY + 10, boxX + boxW + 10, boxY + boxH + 10);
-
-    // Body
-    setfillcolor(theme.cardColor);
-    solidrectangle(boxX, boxY, boxX + boxW, boxY + boxH);
-
-    setlinecolor(theme.accentColor);
-    setlinestyle(PS_SOLID, 2);
-    rectangle(boxX, boxY, boxX + boxW, boxY + boxH);
-
-    // Accent bar
-    setfillcolor(theme.accentColor);
-    solidrectangle(boxX, boxY, boxX + boxW, boxY + 8);
-
-    // Success icon
-    int cx = boxX + 70;
-    int cy = boxY + 78;
-    setlinecolor(theme.accentColor);
-    setfillcolor(lightenColor(theme.accentColor, 95));
-    fillcircle(cx, cy, 28);
-
-    setlinecolor(theme.accentColor);
-    setlinestyle(PS_SOLID, 4);
-    line(cx - 13, cy, cx - 3, cy + 10);
-    line(cx - 3, cy + 10, cx + 16, cy - 12);
-    setlinestyle(PS_SOLID, 1);
-
-    // Title and content
-    setbkmode(TRANSPARENT);
-    settextcolor(theme.textColor);
-    settextstyle(28, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD, false, false, false);
-    outtextxy(boxX + 118, boxY + 48, _T("File Imported"));
-
-    settextstyle(18, 0, _T("Microsoft YaHei"), 0, 0, FW_NORMAL, false, false, false);
-    settextcolor(darkenColor(theme.textColor, 35));
-    outtextxy(boxX + 118, boxY + 92, _T("Data file loaded successfully:"));
-
-    tstring displayName = fileTitle.empty() ? _T("CSV file") : fileTitle;
-    if (displayName.length() > 28)
-        displayName = displayName.substr(0, 25) + _T("...");
-
-    settextcolor(theme.accentColor);
-    settextstyle(18, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD, false, false, false);
-    outtextxy(boxX + 118, boxY + 122, displayName.c_str());
-
-    // OK button
-    setfillcolor(theme.btnNormal);
-    solidrectangle(btnX, btnY, btnX + btnW, btnY + btnH);
-    setlinecolor(theme.btnPress);
-    rectangle(btnX, btnY, btnX + btnW, btnY + btnH);
-
-    settextcolor(RGB(255, 255, 255));
-    settextstyle(20, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD, false, false, false);
-    outtextxy(btnX + 58, btnY + 9, _T("OK"));
-
-    EndBatchDraw();
-
-    // Wait for confirmation: OK click, Enter, Space, or Esc closes the popup.
-    ExMessage popMsg;
-    while (true)
-    {
-        popMsg = getmessage(EX_MOUSE | EX_KEY);
-        if (popMsg.message == WM_KEYDOWN)
-        {
-            if (popMsg.vkcode == VK_RETURN || popMsg.vkcode == VK_SPACE || popMsg.vkcode == VK_ESCAPE)
-                break;
-        }
-        else if (popMsg.message == WM_LBUTTONDOWN)
-        {
-            if (popMsg.x >= btnX && popMsg.x <= btnX + btnW &&
-                popMsg.y >= btnY && popMsg.y <= btnY + btnH)
-                break;
-        }
-    }
-}
-
 static const TCHAR* getChartSuffix(ChartType type)
 {
     switch (type)
@@ -163,7 +69,18 @@ int main()
         [&](const tstring& path){
             if (path.empty())
             {
-                MessageBox(hwnd, _T("Please enter a CSV file path."), _T("Load CSV"), MB_OK);
+                const auto& popupTheme = PRESET_THEMES[themeIdx];
+                PopupCard popup(
+                    (1200 - 500) / 2, (800 - 220) / 2, 500, 220,
+                    _T("Load CSV")
+                );
+                popup.setColors(darkenColor(popupTheme.bgColor, 35),
+                                popupTheme.cardColor, popupTheme.textColor);
+                popup.setAccentColor(RGB(220, 60, 60));
+                popup.setButtonColors(popupTheme.btnNormal, popupTheme.btnHover, popupTheme.btnPress);
+                popup.setMessage(_T("Please enter a CSV file path."));
+                popup.setError(true);
+                popup.showModal();
                 return;
             }
             FileDataReader reader;
@@ -176,12 +93,48 @@ int main()
                 if (slash == tstring::npos) slash = -1;
                 if (dot == tstring::npos || dot <= slash) dot = path.length();
                 loadedTitle = path.substr(slash + 1, dot - slash - 1);
-                showImportSuccessPopup(PRESET_THEMES[themeIdx], loadedTitle);
+
+                // 文件名截断
+                tstring displayName = loadedTitle.empty() ? _T("CSV file") : loadedTitle;
+                if (displayName.length() > 28)
+                    displayName = displayName.substr(0, 25) + _T("...");
+
+                // 使用 PopupCard 弹窗
+                const auto& popupTheme = PRESET_THEMES[themeIdx];
+                PopupCard popup(
+                    (1200 - 500) / 2, (800 - 220) / 2, 500, 220,
+                    _T("File Imported")
+                );
+                popup.setColors(darkenColor(popupTheme.bgColor, 35),
+                                popupTheme.cardColor, popupTheme.textColor);
+                popup.setAccentColor(popupTheme.accentColor);
+                popup.setButtonColors(popupTheme.btnNormal, popupTheme.btnHover, popupTheme.btnPress);
+                popup.setMessage(_T("Data file loaded successfully:"));
+                popup.setDetail(displayName);
+                popup.showModal();
+
                 needRedraw = true;
             }
             else
             {
-                MessageBox(hwnd, reader.getErrorMessage().c_str(), _T("Load CSV"), MB_OK);
+                // 错误时也使用 PopupCard
+                tstring errMsg = reader.getErrorMessage();
+                if (errMsg.length() > 55)
+                    errMsg = errMsg.substr(0, 52) + _T("...");
+
+                const auto& popupTheme = PRESET_THEMES[themeIdx];
+                PopupCard popup(
+                    (1200 - 500) / 2, (800 - 220) / 2, 500, 220,
+                    _T("Load Failed")
+                );
+                popup.setColors(darkenColor(popupTheme.bgColor, 35),
+                                popupTheme.cardColor, popupTheme.textColor);
+                popup.setAccentColor(RGB(220, 60, 60));   // 错误红色
+                popup.setButtonColors(popupTheme.btnNormal, popupTheme.btnHover, popupTheme.btnPress);
+                popup.setMessage(_T("Could not read the file:"));
+                popup.setDetail(errMsg);
+                popup.setError(true);
+                popup.showModal();
             }
         },
         // onExport
