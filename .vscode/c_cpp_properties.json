@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "name": "CodeBlocks-MinGW-EasyX",
+      "includePath": [
+        "D:/easyx4mingw_25.9.10/include",
+        "${workspaceFolder}/src",
+        "${workspaceFolder}/**",
+        "D:/codeblocks-20.03mingw-nosetup/MinGW/include",
+        "D:/codeblocks-20.03mingw-nosetup/MinGW/x86_64-w64-mingw32/include"
+      ],
+      "defines": [
+        "_DEBUG"
+      ],
+      "compilerPath": "D:/codeblocks-20.03mingw-nosetup/MinGW/bin/g++.exe",
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "gcc-x64"
+    }
+  ],
+  "version": 4
+}

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="ChartSystem" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option defaultTarget="Debug" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/ChartSystem" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-std=c++17" />
+				</Compiler>
+				<Linker>
+					<Add option="-LD:\easyx4mingw_25.9.10\lib64" />
+					<Add option="-leasyx" />
+					<Add option="-lgdi32" />
+					<Add option="-lole32" />
+					<Add option="-loleaut32" />
+					<Add option="-luuid" />
+					<Add option="-lwinmm" />
+					<Add option="-lmsimg32" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/ChartSystem" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-std=c++17" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-LD:\easyx4mingw_25.9.10\lib64" />
+					<Add option="-leasyx" />
+					<Add option="-lgdi32" />
+					<Add option="-lole32" />
+					<Add option="-loleaut32" />
+					<Add option="-luuid" />
+					<Add option="-lwinmm" />
+					<Add option="-lmsimg32" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-Isrc" />
+			<Add option="-ID:\easyx4mingw_25.9.10\include" />
+		</Compiler>
+		<Unit filename="src/main.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/chart/Chart.h" />
+		<Unit filename="src/chart/Chart.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/chart/BarChart.h" />
+		<Unit filename="src/chart/BarChart.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/chart/PieChart.h" />
+		<Unit filename="src/chart/PieChart.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/chart/LineChart.h" />
+		<Unit filename="src/chart/LineChart.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/chart/AreaChart.h" />
+		<Unit filename="src/chart/AreaChart.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/ui/Card.h" />
+		<Unit filename="src/ui/Card.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/ui/Button.h" />
+		<Unit filename="src/ui/Button.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/ui/TextInput.h" />
+		<Unit filename="src/ui/TextInput.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/ui/Pages.h" />
+		<Unit filename="src/ui/Pages.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/utils/RenderUtils.h" />
+		<Unit filename="src/utils/FileDataReader.h" />
+		<Unit filename="src/utils/FileDataReader.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Unit filename="src/utils/DataAnalyzer.h" />
+		<Unit filename="src/utils/ImageExporter.h" />
+		<Unit filename="src/utils/ImageExporter.cpp">
+			<Option compilerVar="CPP" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,24 @@
+# 编译产物
+*.exe
+*.o
+*.obj
+
+# Code::Blocks
+bin/
+obj/
+*.layout
+*.depend
+
+# Visual Studio
+.vs/
+
+# VS Code
+*.code-workspace
+
+# Windows 系统文件
+Thumbs.db
+Desktop.ini
+
+# SVG / CHM 导出
+*.svg
+*.chm
