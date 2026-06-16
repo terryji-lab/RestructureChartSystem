@@ -7,10 +7,13 @@
 #include <windows.h>
 #include <tchar.h>
 
+// ==================== 去除字符串首尾空白 ====================
+// 用于清洗 CSV 中每个字段的前后空格
 static std::string trimString(const std::string& s)
 {
     size_t start = 0;
 
+    // 跳过前导空白
     while (start < s.size() && std::isspace((unsigned char)s[start]))
     {
         start++;
@@ -18,6 +21,7 @@ static std::string trimString(const std::string& s)
 
     size_t end = s.size();
 
+    // 跳过尾部空白
     while (end > start && std::isspace((unsigned char)s[end - 1]))
     {
         end--;
@@ -25,6 +29,8 @@ static std::string trimString(const std::string& s)
 
     return s.substr(start, end - start);
 }
+
+// ==================== 构造/析构 ====================
 
 FileDataReader::FileDataReader()
 {
@@ -48,6 +54,9 @@ tstring FileDataReader::getFilePath() const
     return filePath;
 }
 
+// ==================== 字符串编码转换 ====================
+// 将 std::string（UTF-8 或 ANSI）转换为 tstring（Unicode 时为 wstring）
+// 优先尝试 UTF-8 编码，失败时回退到系统默认 ANSI 代码页
 tstring FileDataReader::stringToTString(const std::string& s)
 {
 #ifdef UNICODE
@@ -56,6 +65,7 @@ tstring FileDataReader::stringToTString(const std::string& s)
         return _T("");
     }
 
+    // 先尝试 UTF-8 编码
     int size = MultiByteToWideChar(
         CP_UTF8,
         0,
@@ -67,7 +77,7 @@ tstring FileDataReader::stringToTString(const std::string& s)
 
     UINT codePage = CP_UTF8;
 
-    // If UTF-8 fails, use system default code page
+    // 如果 UTF-8 转换失败，使用系统默认代码页（ANSI）
     if (size <= 0)
     {
         codePage = CP_ACP;
@@ -86,6 +96,7 @@ tstring FileDataReader::stringToTString(const std::string& s)
         return _T("");
     }
 
+    // size 包含了结尾的 '\0'，所以实际字符数是 size-1
     std::wstring result(size - 1, L'\0');
 
     MultiByteToWideChar(
@@ -99,10 +110,18 @@ tstring FileDataReader::stringToTString(const std::string& s)
 
     return result;
 #else
+    // ANSI 编译时无需转换，直接返回
     return s;
 #endif
 }
 
+// ==================== CSV 文件加载与解析 ====================
+// 解析流程：
+//   1. 以二进制模式打开文件
+//   2. 跳过 UTF-8 BOM（0xEF 0xBB 0xBF）
+//   3. 逐行读取，按逗号分割为 name 和 value
+//   4. 尝试将 value 解析为数字，解析失败则跳过该行（标题行）
+//   5. 将有效的 name-value 对存入 data 向量
 bool FileDataReader::load()
 {
     data.clear();
@@ -114,6 +133,7 @@ bool FileDataReader::load()
         return false;
     }
 
+    // 以二进制模式打开（避免 CRT 对换行符的处理影响判断）
     FILE* fp = _tfopen(filePath.c_str(), _T("rb"));
 
     if (fp == NULL)
@@ -123,20 +143,20 @@ bool FileDataReader::load()
     }
 
     char buffer[1024];
-    bool firstLine = true;
+    bool firstLine = true;  // 第一行需要特殊处理 BOM
 
     while (fgets(buffer, sizeof(buffer), fp) != NULL)
     {
         std::string line = buffer;
 
-        // Remove line break
+        // 去除行尾换行符（\n 或 \r\n）
         while (!line.empty() &&
             (line[line.size() - 1] == '\n' || line[line.size() - 1] == '\r'))
         {
             line.erase(line.size() - 1);
         }
 
-        // Remove UTF-8 BOM
+        // 处理 UTF-8 BOM（仅第一行）
         if (firstLine)
         {
             firstLine = false;
@@ -146,17 +166,20 @@ bool FileDataReader::load()
                 (unsigned char)line[1] == 0xBB &&
                 (unsigned char)line[2] == 0xBF)
             {
-                line = line.substr(3);
+                line = line.substr(3);  // 去掉 BOM 标记
             }
         }
 
+        // 去除首尾空格
         line = trimString(line);
 
+        // 跳过空行
         if (line.empty())
         {
             continue;
         }
 
+        // 按逗号分割
         std::stringstream ss(line);
 
         std::string name;
@@ -175,20 +198,24 @@ bool FileDataReader::load()
         name = trimString(name);
         valueStr = trimString(valueStr);
 
+        // 跳过空字段
         if (name.empty() || valueStr.empty())
         {
             continue;
         }
 
+        // 尝试将值字段解析为浮点数
         char* endPtr = NULL;
         double value = std::strtod(valueStr.c_str(), &endPtr);
 
-        // Skip header line, such as: name,value
+        // 如果解析失败（endPtr 指向字符串开头），说明这是标题行
+        // 例如：name,value 这一行会被跳过
         if (endPtr == valueStr.c_str())
         {
             continue;
         }
 
+        // 构造 ChartItem 并添加到结果集
         ChartItem item;
         item.name = stringToTString(name);
         item.value = value;
@@ -198,6 +225,7 @@ bool FileDataReader::load()
 
     fclose(fp);
 
+    // 检查是否有有效数据
     if (data.empty())
     {
         errorMessage = _T("No valid chart data found in CSV file.");

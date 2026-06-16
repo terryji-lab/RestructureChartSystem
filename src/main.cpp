@@ -8,9 +8,20 @@
 #include "utils/ImageExporter.h"
 #include "utils/DataAnalyzer.h"
 
-// 鈹€鈹€ 棰勮棰滆壊涓婚锛堟墿灞?UI 閰嶈壊瀛楁锛夆攢鈹€
+// ==================== 预设颜色主题（共 6 套） ====================
+// 每套主题包含：
+//   barPalette  - 8 色调色板（图表柱子/扇区颜色）
+//   axisColor   - 坐标轴颜色
+//   gridColor   - 网格线颜色
+//   textColor   - 文字颜色
+//   bgColor     - 窗口背景色
+//   cardColor   - 卡片背景色
+//   btnNormal   - 按钮正常态颜色
+//   btnHover    - 按钮悬停态颜色
+//   btnPress    - 按钮按下态颜色
+//   accentColor - 强调色（标题、图标等）
 static const std::vector<ColorTheme> PRESET_THEMES = {
-    // name       barPalette鈥?                                        axis          grid          text          bg              card        btnNormal          btnHover           btnPress           accent
+    // name       barPalette...                                 axis          grid          text          bg              card        btnNormal          btnHover           btnPress           accent
     { _T("Classic"), { RGB(228,87,86), RGB(250,176,58), RGB(245,210,67), RGB(99,190,123), RGB(78,160,212), RGB(148,108,189), RGB(237,125,158), RGB(100,181,180) }, RGB(80,80,80), RGB(220,220,220), RGB(40,40,40), RGB(242,244,248), RGB(255,255,255), RGB(70,130,210), RGB(100,160,235), RGB(50,100,175), RGB(45,95,170) },
     { _T("Ocean"),   { RGB(13,71,119), RGB(25,118,180), RGB(52,152,219), RGB(93,173,226), RGB(26,145,163), RGB(72,202,228), RGB(36,82,134), RGB(160,210,235) }, RGB(30,60,100), RGB(200,220,235), RGB(20,40,70), RGB(235,242,250), RGB(255,255,255), RGB(25,118,180), RGB(52,152,219), RGB(13,71,119), RGB(13,71,119) },
     { _T("Warm"),    { RGB(220,100,60), RGB(230,150,40), RGB(210,60,60), RGB(240,190,60), RGB(190,90,45), RGB(225,140,70), RGB(175,60,45), RGB(240,120,90) }, RGB(80,60,40), RGB(230,210,190), RGB(50,35,25), RGB(252,245,240), RGB(255,255,255), RGB(220,100,60), RGB(240,135,80), RGB(180,70,40), RGB(180,70,40) },
@@ -19,6 +30,8 @@ static const std::vector<ColorTheme> PRESET_THEMES = {
     { _T("Dark"),    { RGB(80,88,112), RGB(101,112,144), RGB(69,80,104), RGB(112,128,160), RGB(88,96,128), RGB(107,120,152), RGB(74,85,120), RGB(92,104,136) }, RGB(180,180,190), RGB(60,60,70), RGB(220,220,225), RGB(42,44,52), RGB(58,60,70), RGB(80,88,112), RGB(112,128,160), RGB(69,80,104), RGB(140,160,200) },
 };
 
+// ==================== 获取图表类型对应的 PNG 文件后缀 ====================
+// 例如 CHART_BAR 返回 "_bar.png"
 static const TCHAR* getChartSuffix(ChartType type)
 {
     switch (type)
@@ -34,41 +47,42 @@ static const TCHAR* getChartSuffix(ChartType type)
 
 int main()
 {
-    // 鈹€鈹€ 鍏变韩鐘舵€?鈹€鈹€
-    std::vector<ChartItem> loadedData;
-    std::vector<ChartItem> originalData;
-    tstring loadedTitle = _T("Chart");
-    int  themeIdx = 0;
-    ChartType currentChart = CHART_BAR;
-    bool needRedraw = true;
+    // ==================== 共享状态（在 main 中集中管理） ====================
+    std::vector<ChartItem> loadedData;       // 当前显示的图表数据
+    std::vector<ChartItem> originalData;     // 原始数据备份（用于 Reset）
+    tstring loadedTitle = _T("Chart");       // 当前图表标题（取自 CSV 文件名）
+    int  themeIdx = 0;                       // 当前主题索引（0-5 循环）
+    ChartType currentChart = CHART_BAR;      // 当前图表类型
+    bool needRedraw = true;                  // 是否需要重绘标志
 
-    // Initialize EasyX graphic window.
+    // ── 初始化 EasyX 图形窗口（1200×800）──
     initgraph(1200, 800);
     setbkcolor(PRESET_THEMES[themeIdx].bgColor);
 
-    // Get EasyX window handle for MessageBox callbacks.
+    // 获取窗口句柄，用于 MessageBox 和 Clipboard 等 Win32 API 调用
     HWND hwnd = GetHWnd();
 
-    // Page pointers used by UI callbacks.
+    // 当前活动页面指针（用于事件分发和绘制）
     Page* currentPage = nullptr;
     std::unique_ptr<MainPage>  mainPage;
     std::unique_ptr<ChartPage> chartPage;
 
-    // 鈹€鈹€ 鍒涘缓涓婚〉闈?鈹€鈹€
+    // ==================== 创建主页面 ====================
     const auto& initialTheme = PRESET_THEMES[themeIdx];
     mainPage = std::make_unique<MainPage>(
         initialTheme,
-        // onChartSelect
+        // ── onChartSelect：选择了图表类型，切换到 ChartPage ──
         [&](ChartType t){
             currentChart = t;
             chartPage->setChartData(t, loadedData, loadedTitle, PRESET_THEMES[themeIdx]);
             currentPage = chartPage.get();
             needRedraw = true;
         },
-        // onLoadCSV
+        // ── onLoadCSV：加载 CSV 文件 ──
         [&](const tstring& path){
             if (path.empty())
             {
+                // 路径为空时弹出错误提示
                 const auto& popupTheme = PRESET_THEMES[themeIdx];
                 PopupCard popup(
                     (1200 - 500) / 2, (800 - 220) / 2, 500, 220,
@@ -76,7 +90,7 @@ int main()
                 );
                 popup.setColors(darkenColor(popupTheme.bgColor, 35),
                                 popupTheme.cardColor, popupTheme.textColor);
-                popup.setAccentColor(RGB(220, 60, 60));
+                popup.setAccentColor(RGB(220, 60, 60));   // 错误红色
                 popup.setButtonColors(RGB(200, 55, 55), RGB(235, 75, 75), RGB(160, 35, 35));
                 popup.setMessage(_T("Please enter a CSV file path."));
                 popup.setError(true);
@@ -86,20 +100,22 @@ int main()
             FileDataReader reader;
             if (reader.loadFromPath(path))
             {
+                // 加载成功
                 loadedData = reader.getData();
-                originalData = loadedData;
+                originalData = loadedData;               // 保存原始数据备份
+                // 从文件路径中提取文件名作为图表标题
                 size_t slash = path.find_last_of(_T("\\/"));
                 size_t dot   = path.find_last_of(_T('.'));
                 if (slash == tstring::npos) slash = -1;
                 if (dot == tstring::npos || dot <= slash) dot = path.length();
                 loadedTitle = path.substr(slash + 1, dot - slash - 1);
 
-                // 文件名截断
+                // 文件名截断（超过 28 字符时用 "..." 省略）
                 tstring displayName = loadedTitle.empty() ? _T("CSV file") : loadedTitle;
                 if (displayName.length() > 28)
                     displayName = displayName.substr(0, 25) + _T("...");
 
-                // 使用 PopupCard 弹窗
+                // 使用 PopupCard 弹窗显示成功信息
                 const auto& popupTheme = PRESET_THEMES[themeIdx];
                 PopupCard popup(
                     (1200 - 500) / 2, (800 - 220) / 2, 500, 220,
@@ -117,7 +133,7 @@ int main()
             }
             else
             {
-                // 错误时也使用 PopupCard
+                // 加载失败，弹出错误提示
                 tstring errMsg = reader.getErrorMessage();
                 if (errMsg.length() > 55)
                     errMsg = errMsg.substr(0, 52) + _T("...");
@@ -137,7 +153,7 @@ int main()
                 popup.showModal();
             }
         },
-        // onExport
+        // ── onExport：批量导出四种图表的 PNG ──
         [&](){
             if (loadedData.empty())
             {
@@ -147,6 +163,7 @@ int main()
             ChartType allTypes[] = { CHART_BAR, CHART_PIE, CHART_LINE, CHART_AREA };
             const TCHAR* suffixes[] = { _T("_bar.png"), _T("_pie.png"), _T("_line.png"), _T("_area.png") };
             bool allOk = true;
+            // 依次导出四种图表
             for (int i = 0; i < 4; i++)
             {
                 auto chart = createChart(allTypes[i], loadedTitle, loadedData, PRESET_THEMES[themeIdx]);
@@ -158,7 +175,7 @@ int main()
             else
                 MessageBox(hwnd, _T("Export failed."), _T("Export"), MB_OK);
         },
-        // onThemeSwitch
+        // ── onThemeSwitch：循环切换颜色主题 ──
         [&](){
             themeIdx = (themeIdx + 1) % int(PRESET_THEMES.size());
             const auto& newTheme = PRESET_THEMES[themeIdx];
@@ -171,14 +188,15 @@ int main()
     );
     mainPage->setThemeButtonText(_T("Theme: Classic"));
 
-    // 鈹€鈹€ 鍒涘缓鍥捐〃椤甸潰 鈹€鈹€
+    // ==================== 创建图表页面 ====================
     chartPage = std::make_unique<ChartPage>(
         initialTheme,
-        // onBack
+        // ── onBack：返回主页面 ──
         [&](){
             currentPage = mainPage.get();
             needRedraw = true;
         },
+        // ── onExport：导出当前图表为 PNG ──
         [&](){
             if (loadedData.empty())
             {
@@ -191,7 +209,7 @@ int main()
             else
                 MessageBox(hwnd, _T("Export failed."), _T("Export"), MB_OK);
         },
-        // onSortAsc 鈥?鍗囧簭
+        // ── onSortAsc：按数值升序排序 ──
         [&](){
             if (loadedData.empty()) return;
             DataAnalyzer da(loadedData);
@@ -199,7 +217,7 @@ int main()
             chartPage->setChartData(currentChart, loadedData, loadedTitle, PRESET_THEMES[themeIdx]);
             needRedraw = true;
         },
-        // onSortDesc 鈥?闄嶅簭
+        // ── onSortDesc：按数值降序排序 ──
         [&](){
             if (loadedData.empty()) return;
             DataAnalyzer da(loadedData);
@@ -207,7 +225,7 @@ int main()
             chartPage->setChartData(currentChart, loadedData, loadedTitle, PRESET_THEMES[themeIdx]);
             needRedraw = true;
         },
-        // onSortNameAsc 鈥?鎸夊悕绉板崌搴?
+        // ── onSortNameAsc：按名称升序排序 ──
         [&](){
             if (loadedData.empty()) return;
             DataAnalyzer da(loadedData);
@@ -215,7 +233,7 @@ int main()
             chartPage->setChartData(currentChart, loadedData, loadedTitle, PRESET_THEMES[themeIdx]);
             needRedraw = true;
         },
-        // onSortNameDesc 鈥?鎸夊悕绉伴檷搴?
+        // ── onSortNameDesc：按名称降序排序 ──
         [&](){
             if (loadedData.empty()) return;
             DataAnalyzer da(loadedData);
@@ -223,7 +241,7 @@ int main()
             chartPage->setChartData(currentChart, loadedData, loadedTitle, PRESET_THEMES[themeIdx]);
             needRedraw = true;
         },
-        // onReset
+        // ── onReset：恢复为原始数据 ──
         [&](){
             if (originalData.empty()) return;
             loadedData = originalData;
@@ -232,60 +250,66 @@ int main()
         }
     );
 
+    // 默认显示主页面
     currentPage = mainPage.get();
 
-    // 棣栨缁樺埗
+    // ── 首次绘制（使用双缓冲避免闪烁）──
     BeginBatchDraw();
     currentPage->draw();
     EndBatchDraw();
 
-    // 鈹€鈹€ 浜嬩欢寰幆 鈹€鈹€
+    // ==================== 主事件循环 ====================
+    // 监听鼠标、键盘、窗口消息，按需分发到当前页面并触发重绘。
+    // 使用 needRedraw 标志避免不必要的重绘，提升性能。
     ExMessage msg;
     bool running = true;
 
     while (running && IsWindow(hwnd))
     {
+        // 获取下一条消息（同时监听鼠标、键盘、字符输入和窗口事件）
         msg = getmessage(EX_MOUSE | EX_KEY | EX_CHAR | EX_WINDOW);
 
         switch (msg.message)
         {
-        case WM_CLOSE:
+        case WM_CLOSE:                            // 窗口关闭按钮
             running = false;
             break;
 
-        case WM_KEYDOWN:
-            if (msg.vkcode == VK_ESCAPE) running = false;
+        case WM_KEYDOWN:                          // 键盘按下
+            if (msg.vkcode == VK_ESCAPE) running = false;  // ESC 退出
             needRedraw |= currentPage->handleKeyDown(msg.vkcode);
             break;
 
-        case WM_CHAR:
+        case WM_CHAR:                             // 字符输入（用于 TextInput）
             needRedraw |= currentPage->handleChar(msg.ch);
             break;
 
-        case WM_MOUSEMOVE:
+        case WM_MOUSEMOVE:                        // 鼠标移动
             needRedraw |= currentPage->handleMouseMove(msg.x, msg.y);
             break;
 
-        case WM_LBUTTONDOWN:
+        case WM_LBUTTONDOWN:                      // 鼠标左键按下
             needRedraw |= currentPage->handleMouseDown(msg.x, msg.y);
             break;
 
-        case WM_LBUTTONUP:
+        case WM_LBUTTONUP:                        // 鼠标左键释放
             needRedraw |= currentPage->handleMouseUp(msg.x, msg.y);
             break;
         }
 
+        // 仅在需要时重绘（双缓冲）
         if (needRedraw)
         {
             needRedraw = false;
             BeginBatchDraw();
-            cleardevice();
-            currentPage->draw();
+            cleardevice();                        // 清空屏幕
+            currentPage->draw();                  // 重新绘制当前页面
             EndBatchDraw();
         }
     }
 
+    // ── 程序退出 ──
     std::cout << "Program exited";
-    closegraph();
+    closegraph();                                 // 关闭图形窗口
     return 0;
 }

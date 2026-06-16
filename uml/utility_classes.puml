@@ -1,0 +1,71 @@
+@startuml 工具类与全局函数
+' ==================== 工具类 + 全局辅助函数 ====================
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontSize 12
+
+' ── FileDataReader ──
+class FileDataReader {
+  - tstring filePath
+  - vector<ChartItem> data
+  - tstring errorMessage
+  ---
+  - {static} stringToTString(s) : tstring
+  ---
+  + FileDataReader()
+  + FileDataReader(path)
+  + setFilePath(path)
+  + getFilePath() : tstring
+  + load() : bool
+  + loadFromPath(path) : bool
+  + getData() : vector<ChartItem>
+  + getErrorMessage() : tstring
+  + clear()
+}
+
+' ── DataAnalyzer ──
+class DataAnalyzer {
+  - const vector<ChartItem>& m_data
+  ---
+  + DataAnalyzer(data)
+  + count() : int
+  + sum() : double
+  + max() : double
+  + min() : double
+  + average() : double
+  + median() : double
+  + sortByValue(asc) : vector<ChartItem>
+  + sortByName(asc) : vector<ChartItem>
+}
+
+' ── ImageExporter ──
+class ImageExporter {
+  - {static} DEFAULT_IMAGE_WIDTH : int = 1200
+  - {static} DEFAULT_IMAGE_HEIGHT : int = 800
+  ---
+  + {static} exportChart(chart, filePath) : bool
+}
+
+' ── 全局辅助函数 ──
+class RenderUtils <<utility>> {
+  + drawRoundRectFill(x, y, w, h, r, color)
+}
+
+class ColorUtils <<utility>> {
+  + darkenColor(c, amount) : COLORREF
+  + lightenColor(c, amount) : COLORREF
+}
+
+class ChartFactory <<factory>> {
+  + createChart(type, title, data, theme) : unique_ptr<Chart>
+}
+
+' ── 依赖关系 ──
+FileDataReader ..> ChartItem : produces
+DataAnalyzer ..> ChartItem : analyzes
+ImageExporter ..> Chart : exports
+ChartFactory ..> Chart : creates
+ChartFactory ..> ChartType : uses
+
+@enduml

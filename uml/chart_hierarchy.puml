@@ -1,0 +1,132 @@
+@startuml 图表类层次结构
+' ==================== 图表类继承体系 ====================
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontSize 12
+
+' ── 结构体 ──
+class ChartItem <<struct>> {
+  + tstring name
+  + double value
+}
+
+class ColorTheme <<struct>> {
+  + tstring name
+  + vector<COLORREF> barPalette
+  + COLORREF axisColor
+  + COLORREF gridColor
+  + COLORREF textColor
+  + COLORREF bgColor
+  + COLORREF cardColor
+  + COLORREF btnNormal
+  + COLORREF btnHover
+  + COLORREF btnPress
+  + COLORREF accentColor
+}
+
+class PlotCoords <<struct>> {
+  + vector<int> ptX
+  + vector<int> ptY
+  + int originX
+  + int originY
+  + int axisTopY
+  + int axisRightX
+  + int plotWidth
+  + int plotHeight
+}
+
+enum ChartType {
+  CHART_BAR
+  CHART_PIE
+  CHART_LINE
+  CHART_AREA
+}
+
+' ── 抽象基类 ──
+abstract class Chart {
+  # tstring title
+  # vector<ChartItem> data
+  # int leftX, topY
+  # int chartWidth, chartHeight
+  ---
+  + Chart(title, data, x, y, w, h)
+  + setData(data)
+  + setTitle(title)
+  + {abstract} draw()
+  + {abstract} applyTheme(theme)
+  + ~Chart()
+}
+
+' ── 柱状图 ──
+class BarChart {
+  - COLORREF barColor
+  - COLORREF axisColor
+  - COLORREF gridColor
+  - COLORREF textColor
+  - vector<COLORREF> barColors
+  ---
+  - getMaxValue() : double
+  - drawTitle()
+  - drawAxis()
+  - drawYAxisScale(maxValue, originX, originY, axisRightX, plotHeight)
+  ---
+  + BarChart(title, data, x, y, w, h)
+  + draw()
+  + applyTheme(theme)
+}
+
+' ── 饼图 ──
+class PieChart {
+  - int centerX, centerY, radius
+  - vector<COLORREF> colors
+  - COLORREF m_textColor
+  ---
+  - getTotal() : double
+  - drawLegend()
+  ---
+  + PieChart(title, data, x, y, w, h, r)
+  + draw()
+  + applyTheme(theme)
+}
+
+' ── 折线图 ──
+class LineChart {
+  # COLORREF lineColor
+  # COLORREF pointColor
+  # COLORREF axisColor
+  # COLORREF gridColor
+  # COLORREF textColor
+  ---
+  # getMaxValue() : double
+  # drawTitle()
+  # drawAxis()
+  # drawGrid()
+  # computePlotCoords() : PlotCoords
+  ---
+  + LineChart(title, data, x, y, w, h)
+  + draw()
+  + applyTheme(theme)
+}
+
+' ── 面积图 ──
+class AreaChart {
+  - COLORREF fillColor
+  ---
+  + AreaChart(title, data, x, y, w, h)
+  + draw()
+  + applyTheme(theme)
+}
+
+' ── 继承关系 ──
+Chart <|-- BarChart
+Chart <|-- PieChart
+Chart <|-- LineChart
+LineChart <|-- AreaChart
+
+' ── 组合关系 ──
+Chart *-- ChartItem : uses
+Chart ..> ColorTheme : applies
+LineChart +-- PlotCoords : computes
+
+@enduml
