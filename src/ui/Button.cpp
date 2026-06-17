@@ -1,5 +1,6 @@
 #include "Button.h"
 #include "../utils/RenderUtils.h"
+#include "../utils/AntiAlias.h"
 
 // 构造函数，默认使用蓝色系配色方案
 Button::Button(int x, int y, int width, int height, const tstring& text,
@@ -86,34 +87,23 @@ void Button::draw() const
     // 2. 按钮主体（圆角矩形填充）
     drawRoundRectFill(m_x, m_y, m_w, m_h, m_radius, fillColor);
 
-    // 3. 细线边框（用 line + arc 组合绘制圆角边框）
-    setlinecolor(m_colorBorder);
+    // 3. 细线边框（使用 GDI+ 抗锯齿圆角边框）
     if (m_radius > 0)
     {
-        int r = m_radius;
-        int x = m_x, y = m_y, w = m_w, h = m_h;
-        // 四条直线边
-        line(x + r, y,         x + w - r, y);           // 上边
-        line(x + r, y + h,     x + w - r, y + h);       // 下边
-        line(x,     y + r,     x,         y + h - r);   // 左边
-        line(x + w, y + r,     x + w,     y + h - r);   // 右边
-        const double PI = 3.141592653589793;
-        // 四个圆弧角（EasyX arc 参数：左上、右下、起始角、终止角）
-        arc(x, y,                 x + r * 2, y + r * 2,     PI,       PI * 1.5);  // 左上
-        arc(x + w - r * 2, y,     x + w,     y + r * 2,     PI * 1.5, PI * 2.0);  // 右上
-        arc(x + w - r * 2, y + h - r * 2, x + w, y + h,     0,        PI * 0.5);  // 右下
-        arc(x,     y + h - r * 2, x + r * 2, y + h,         PI * 0.5, PI);        // 左下
+        AA::roundrect(m_x, m_y, m_w, m_h, m_radius,
+                      fillColor, m_colorBorder, 1);
     }
     else
     {
         // 无圆角时使用普通矩形
+        setlinecolor(m_colorBorder);
         rectangle(m_x, m_y, m_x + m_w, m_y + m_h);
     }
 
     // 4. 文字（水平和垂直居中，使用 Microsoft YaHei 字体）
     settextcolor(m_colorText);
     setbkmode(TRANSPARENT);
-    settextstyle(22, 0, _T("Microsoft YaHei"), 0, 0, FW_SEMIBOLD, false, false, false);
+    AA::setTextStyleAA(22, 0, _T("Microsoft YaHei"), 0, 0, FW_SEMIBOLD);
 
     int tw = textwidth(m_text.c_str());
     int th = textheight(m_text.c_str());

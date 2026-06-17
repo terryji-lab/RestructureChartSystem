@@ -1,4 +1,5 @@
 #include "ChartGridRenderer.h"
+#include "../utils/AntiAlias.h"
 #include <tchar.h>
 #include <cstdio>
 
@@ -7,7 +8,7 @@ void drawYAxisGridAndScale(
     double maxValue, COLORREF gridColor, COLORREF textColor,
     int textOffsetX)
 {
-    settextstyle(14, 0, _T("Arial"));
+    AA::setTextStyleAA(14, 0, _T("Arial"));
 
     for (int i = 0; i <= 5; i++)
     {

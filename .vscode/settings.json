@@ -1,4 +1,65 @@
 {
     "plantuml.server": "https://www.plantuml.com/plantuml",
-    "plantuml.render": "PlantUMLServer"
+    "plantuml.render": "PlantUMLServer",
+
+    // LaTeX Workshop 配置
+    "latex-workshop.latex.tools": [
+        {
+            "name": "xelatex",
+            "command": "xelatex",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ]
+        },
+        {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ]
+        },
+        {
+            "name": "bibtex",
+            "command": "bibtex",
+            "args": [
+                "%DOCFILE%"
+            ]
+        }
+    ],
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "xe->bib->xe->xe",
+            "tools": [
+                "xelatex",
+                "bibtex",
+                "xelatex",
+                "xelatex"
+            ]
+        },
+        {
+            "name": "xelatex",
+            "tools": [
+                "xelatex"
+            ]
+        },
+        {
+            "name": "pdflatex",
+            "tools": [
+                "pdflatex"
+            ]
+        }
+    ],
+    // 自动清理编译产生的中间辅助文件
+    "latex-workshop.latex.autoClean.run": "onBuilt",
+    // 默认在 VS Code 内部标签页预览 PDF
+    "latex-workshop.view.pdf.viewer": "tab",
+    
+    // 设置默认终端为 PowerShell，防止总是打开 WSL
+    "terminal.integrated.defaultProfile.windows": "PowerShell"
 }

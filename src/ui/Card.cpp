@@ -1,5 +1,6 @@
 #include "Card.h"
 #include "../chart/Chart.h"   // darkenColor, lightenColor
+#include "../utils/AntiAlias.h"
 
 // Card 基类
 
@@ -28,7 +29,7 @@ void Card::drawTitle() const
 {
     if (!m_title.empty())
     {
-        settextstyle(18, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD, false, false, false);
+        AA::setTextStyleAA(18, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD);
         settextcolor(m_titleColor);
         outtextxy(m_x + 14, m_y + 10, m_title.c_str());
     }
@@ -71,7 +72,7 @@ void DisplayBox::draw() const
 
     if (!m_text.empty())
     {
-        settextstyle(18, 0, _T("Microsoft YaHei"), 0, 0, FW_SEMIBOLD, false, false, false);
+        AA::setTextStyleAA(18, 0, _T("Microsoft YaHei"), 0, 0, FW_SEMIBOLD);
         settextcolor(m_titleColor);
         outtextxy(m_x + 14, m_y + 36, m_text.c_str());
     }

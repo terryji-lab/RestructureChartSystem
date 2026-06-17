@@ -1,5 +1,6 @@
 #include "LineChart.h"
 #include "ChartCoordinates.h"
+#include "../utils/AntiAlias.h"
 #include <sstream>
 
 // 构造函数
@@ -39,7 +40,7 @@ double LineChart::getMaxValue() const
 void LineChart::drawTitle()
 {
     settextcolor(textColor);
-    settextstyle(28, 0, _T("Arial"));
+    AA::setTextStyleAA(28, 0, _T("Arial"));
     int tw = textwidth(title.c_str());
     outtextxy(leftX + (chartWidth - tw) / 2, topY + 20, title.c_str());
 }
@@ -52,13 +53,8 @@ void LineChart::drawAxis()
     int axisTopY = topY + 70;
     int axisRightX = leftX + chartWidth - 40;
 
-    setlinecolor(axisColor);
-    setlinestyle(PS_SOLID, 2);
-
-    line(originX, axisTopY, originX, originY);
-    line(originX, originY, axisRightX, originY);
-
-    setlinestyle(PS_SOLID, 1);
+    AA::line(originX, axisTopY, originX, originY, axisColor, 2);
+    AA::line(originX, originY, axisRightX, originY, axisColor, 2);
 }
 
 // 绘制网格线
@@ -70,6 +66,7 @@ void LineChart::drawGrid()
     int axisRightX = leftX + chartWidth - 40;
     int plotHeight = originY - axisTopY;
 
+    // 网格线用原生 EasyX 虚线（GDI+ 不影响水平/垂直虚线）
     setlinecolor(gridColor);
     setlinestyle(PS_DOT, 1);
 
@@ -88,7 +85,7 @@ void LineChart::draw()
     if (data.empty())
     {
         settextcolor(RED);
-        settextstyle(40, 0, _T("Arial"));
+        AA::setTextStyleAA(40, 0, _T("Arial"));
         int tw = textwidth(_T("No Data"));
         outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("No Data"));
         return;
@@ -98,7 +95,7 @@ void LineChart::draw()
     if (maxVal <= 0)
     {
         settextcolor(RED);
-        settextstyle(40, 0, _T("Arial"));
+        AA::setTextStyleAA(40, 0, _T("Arial"));
         int tw = textwidth(_T("Invalid Data"));
         outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("Invalid Data"));
         return;
@@ -111,12 +108,9 @@ void LineChart::draw()
     PlotCoords pc = computePlotCoords(data, leftX, topY, chartWidth, chartHeight);
     int n = int(data.size());
 
-    // 绘制折线
-    setlinecolor(lineColor);
-    setlinestyle(PS_SOLID, 3);
+    // 绘制折线（抗锯齿）
     for (int i = 0; i < n - 1; i++)
-        line(pc.ptX[i], pc.ptY[i], pc.ptX[i + 1], pc.ptY[i + 1]);
-    setlinestyle(PS_SOLID, 1);
+        AA::line(pc.ptX[i], pc.ptY[i], pc.ptX[i + 1], pc.ptY[i + 1], lineColor, 3);
 
     // 自适应标签间距
     int labelStep = 1;
@@ -127,22 +121,18 @@ void LineChart::draw()
     if (n > 25)
     {
         int spacePerLabel = (n == 1) ? pc.plotWidth : pc.plotWidth / (n - 1);
-        settextstyle(fontSize, 0, _T("Arial"));
+        AA::setTextStyleAA(fontSize, 0, _T("Arial"));
         int avgTextW = textwidth(_T("MMMMM"));
         labelStep = avgTextW / spacePerLabel + 1;
     }
 
     // 绘制数据点和标签
-    settextstyle(fontSize, 0, _T("Arial"));
+    AA::setTextStyleAA(fontSize, 0, _T("Arial"));
 
     for (int i = 0; i < n; i++)
     {
-        setfillcolor(pointColor);
-        setlinecolor(axisColor);
-
         int r = (n > 30) ? 2 : 5;
-        fillcircle(pc.ptX[i], pc.ptY[i], r);
-        circle(pc.ptX[i], pc.ptY[i], r);
+        AA::fillcircle(pc.ptX[i], pc.ptY[i], r, pointColor, axisColor);
 
         if (labelStep == 1 || i % labelStep == 0)
         {
@@ -160,7 +150,7 @@ void LineChart::draw()
     }
 
     // Y 轴刻度
-    settextstyle(14, 0, _T("Arial"));
+    AA::setTextStyleAA(14, 0, _T("Arial"));
     for (int i = 0; i <= 5; i++)
     {
         int sy = pc.originY - pc.plotHeight * i / 5;

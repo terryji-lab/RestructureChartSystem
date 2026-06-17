@@ -1,5 +1,6 @@
 #include "BarChart.h"
 #include "ChartGridRenderer.h"
+#include "../utils/AntiAlias.h"
 #include <sstream>
 #include <iomanip>
 
@@ -41,7 +42,7 @@ double BarChart::getMaxValue() const
 void BarChart::drawTitle()
 {
     settextcolor(textColor);
-    settextstyle(28, 0, _T("Arial"));
+    AA::setTextStyleAA(28, 0, _T("Arial"));
     int titleWidth = textwidth(title.c_str());
     outtextxy(leftX + chartWidth / 2 - titleWidth / 2, topY + 20, title.c_str());
 }
@@ -54,13 +55,8 @@ void BarChart::drawAxis()
     int axisTopY = topY + 80;
     int axisRightX = leftX + chartWidth - 50;
 
-    setlinecolor(axisColor);
-    setlinestyle(PS_SOLID, 2);
-
-    line(originX, axisTopY, originX, originY);
-    line(originX, originY, axisRightX, originY);
-
-    setlinestyle(PS_SOLID, 1);
+    AA::line(originX, axisTopY, originX, originY, axisColor, 2);
+    AA::line(originX, originY, axisRightX, originY, axisColor, 2);
 }
 
 // 绘制 Y 轴网格线和刻度（委托给 ChartGridRenderer 工具函数）
@@ -82,7 +78,7 @@ void BarChart::draw()
     if (data.empty())
     {
         settextcolor(RED);
-        settextstyle(40, 0, _T("Arial"));
+        AA::setTextStyleAA(40, 0, _T("Arial"));
         int tw = textwidth(_T("No Data"));
         outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("No Data"));
         return;
@@ -92,7 +88,7 @@ void BarChart::draw()
     if (maxValue <= 0)
     {
         settextcolor(RED);
-        settextstyle(40, 0, _T("Arial"));
+        AA::setTextStyleAA(40, 0, _T("Arial"));
         int tw = textwidth(_T("Invalid Data"));
         outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("Invalid Data"));
         return;
@@ -115,7 +111,7 @@ void BarChart::draw()
     int barWidth = gap;
     if (barWidth > 60) barWidth = 60;
 
-    settextstyle(16, 0, _T("Arial"));
+    AA::setTextStyleAA(16, 0, _T("Arial"));
 
     for (int i = 0; i < n; i++)
     {

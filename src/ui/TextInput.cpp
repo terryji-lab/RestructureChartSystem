@@ -1,5 +1,6 @@
 #include "TextInput.h"
 #include "../utils/ClipboardUtils.h"
+#include "../utils/AntiAlias.h"
 
 // 构造函数
 TextInput::TextInput(int x, int y, int w, int h,
@@ -22,13 +23,13 @@ void TextInput::draw() const
     if (m_text.empty())
     {
         settextcolor(RGB(0xAA, 0xAA, 0xAA));
-        settextstyle(20, 0, _T("Segoe UI"), 0, 0, FW_SEMIBOLD, false, false, false);
+        AA::setTextStyleAA(20, 0, _T("Segoe UI"), 0, 0, FW_SEMIBOLD);
         outtextxy(m_x + 10, m_y + (m_h - 18) / 2, m_placeholder.c_str());
     }
     else
     {
         settextcolor(BLACK);
-        settextstyle(20, 0, _T("Segoe UI"), 0, 0, FW_SEMIBOLD, false, false, false);
+        AA::setTextStyleAA(20, 0, _T("Segoe UI"), 0, 0, FW_SEMIBOLD);
         outtextxy(m_x + 10, m_y + (m_h - 18) / 2, m_text.c_str());
     }
 

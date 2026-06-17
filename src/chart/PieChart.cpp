@@ -1,4 +1,5 @@
 #include "PieChart.h"
+#include "../utils/AntiAlias.h"
 #include <cmath>
 #include <sstream>
 
@@ -49,7 +50,7 @@ void PieChart::draw()
     if(data.empty())
     {
         settextcolor(RED);
-        settextstyle(40, 0, _T("Arial"));
+        AA::setTextStyleAA(40, 0, _T("Arial"));
         int tw = textwidth(_T("No Data"));
         outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("No Data"));
         return;
@@ -59,7 +60,7 @@ void PieChart::draw()
     if(total <= 0)
     {
         settextcolor(RED);
-        settextstyle(40, 0, _T("Arial"));
+        AA::setTextStyleAA(40, 0, _T("Arial"));
         int tw = textwidth(_T("Invalid Data"));
         outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("Invalid Data"));
         return;
@@ -67,7 +68,7 @@ void PieChart::draw()
 
     // 绘制标题（顶部居中）
     settextcolor(m_textColor);
-    settextstyle(36,0,_T("Arial"));
+    AA::setTextStyleAA(36,0,_T("Arial"));
     int tw = textwidth(title.c_str());
     outtextxy(leftX + (chartWidth - tw) / 2, topY + 20, title.c_str());
 
@@ -76,17 +77,14 @@ void PieChart::draw()
     // 逐个绘制扇形
     for(size_t i = 0;i < data.size();i++)
     {
-        // 计算每个扇区占的比例和结束角度
         double percent = data[i].value / total;
         double endAngle = startAngle + percent * 2 * PI;
 
-        setfillcolor(colors[i % colors.size()]);
-        setlinecolor(WHITE);
-
-        // EasyX 的 fillpie：绘制填充椭圆扇形
-        fillpie(centerX - radius, centerY - radius,
+        // 使用 GDI+ 抗锯齿填充扇形
+        AA::fillpie(centerX - radius, centerY - radius,
                 centerX + radius, centerY + radius,
-                startAngle, endAngle);
+                startAngle, endAngle,
+                colors[i % colors.size()], WHITE);
 
         // 在扇形中间位置绘制百分比标签
         double midAngle = (startAngle + endAngle) / 2;
@@ -96,7 +94,7 @@ void PieChart::draw()
         TCHAR pctStr[16];
         _stprintf_s(pctStr, _T("%.1f%%"), percent * 100);
         settextcolor(m_textColor);
-        settextstyle(20,0,_T("Arial"));
+        AA::setTextStyleAA(20,0,_T("Arial"));
         outtextxy(textX - 20, textY - 8, pctStr);
 
         startAngle = endAngle;
@@ -110,23 +108,18 @@ void PieChart::draw()
 // 在饼图右侧绘制颜色块 + 名称 + 数值的图例列表
 void PieChart::drawLegend()
 {
-    int legendX = centerX + radius + 70;   // 图例起始 X（饼图右侧 70px）
-    int legendY = centerY - radius;         // 图例起始 Y（与饼图顶部对齐）
+    int legendX = centerX + radius + 70;
+    int legendY = centerY - radius;
 
-    settextstyle(22,0,_T("Arial"));
+    AA::setTextStyleAA(22,0,_T("Arial"));
     settextcolor(m_textColor);
 
     for(size_t i = 0;i < data.size();i++)
     {
-        int ly = legendY + int(i) * 42;    // 每行图例间距 42px
+        int ly = legendY + int(i) * 42;
 
-        // 颜色块
-        setfillcolor(colors[i % colors.size()]);
-        fillrectangle(legendX, ly, legendX + 20, ly + 20);
-
-        // 颜色块边框
-        setlinecolor(BLACK);
-        rectangle(legendX, ly, legendX + 20, ly + 20);
+        // 颜色块（用圆角矩形替代普通矩形，更精致）
+        AA::roundrect(legendX, ly, 20, 20, 4, colors[i % colors.size()], BLACK);
 
         // 名称和数值
         TCHAR legendStr[128];

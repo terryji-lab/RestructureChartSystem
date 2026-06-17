@@ -1,6 +1,7 @@
 #include "ExportPathDialog.h"
 #include "utils/RenderUtils.h"
 #include "chart/Chart.h"
+#include "../utils/AntiAlias.h"
 
 // 构造函数：居中弹窗，初始化输入框和按钮，绑定回调
 ExportPathDialog::ExportPathDialog(const ColorTheme& theme,
@@ -87,17 +88,17 @@ void ExportPathDialog::draw() const
     // 标题
     setbkmode(TRANSPARENT);
     settextcolor(m_accentColor);
-    settextstyle(28, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD, false, false, false);
+    AA::setTextStyleAA(28, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD);
     outtextxy(m_x + 42, m_y + 36, m_title.c_str());
 
     // 提示消息
     settextcolor(darkenColor(m_textColor, 30));
-    settextstyle(18, 0, _T("Microsoft YaHei"), 0, 0, FW_NORMAL, false, false, false);
+    AA::setTextStyleAA(18, 0, _T("Microsoft YaHei"), 0, 0, FW_NORMAL);
     outtextxy(m_x + 42, m_y + 82, m_message.c_str());
 
     // 路径格式提示
     settextcolor(darkenColor(m_textColor, 55));
-    settextstyle(15, 0, _T("Microsoft YaHei"), 0, 0, FW_NORMAL, false, false, false);
+    AA::setTextStyleAA(15, 0, _T("Microsoft YaHei"), 0, 0, FW_NORMAL);
     outtextxy(m_x + 42, m_y + 176, _T("Relative paths are saved from the project running directory."));
     outtextxy(m_x + 42, m_y + 198, _T("Examples: exports\\chart.png  or  D:\\charts\\chart.png"));
 

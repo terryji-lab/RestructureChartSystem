@@ -1,6 +1,6 @@
 # ChartSystem
 
-基于 **C++14** 和 **EasyX** 图形库的 Windows 桌面图表可视化工具。加载 CSV 数据，以柱状图、饼图、折线图、面积图四种形式呈现，支持数据排序、统计分析和 PNG 导出。
+基于 **C++14** 和 **EasyX** 图形库的 Windows 桌面图表可视化工具。加载 CSV 数据，以柱状图、饼图、折线图、面积图四种形式呈现，支持数据排序、统计分析和 PNG 导出。项目引入了 **GDI+** 抗锯齿技术，提供高质量的图形和字体渲染。
 
 ## 编译配置
 
@@ -10,7 +10,7 @@
 | ---- | ---- |
 | **MinGW-w64** | g++ ≥ 5.0，支持 C++14。推荐 [WinLibs](https://winlibs.com/) 或 [MSYS2](https://www.msys2.org/) 发行版 |
 | **EasyX for MinGW** | Windows 轻量图形库，需手动安装到 MinGW 目录（见下方） |
-| **Windows 7+** | EasyX 依赖 GDI32 等 Win32 API，仅支持 Windows |
+| **Windows 7+** | EasyX 和 GDI+ 依赖 Win32 API，仅支持 Windows |
 
 ### 安装 EasyX for MinGW
 
@@ -59,7 +59,7 @@ build.bat
     src/utils/StringUtils.cpp \
     src/utils/ClipboardUtils.cpp \
     -o main.exe \
-    -leasyx -lgdi32 -lole32 -loleaut32 -luuid -lwinmm -lmsimg32
+    -leasyx -lgdi32 -lole32 -loleaut32 -luuid -lwinmm -lmsimg32 -lgdiplus
 ```
 
 Release 模式追加 `-O2 -s -mwindows`。
@@ -75,15 +75,19 @@ Release 模式追加 `-O2 -s -mwindows`。
 | `-luuid` | UUID 生成 |
 | `-lwinmm` | Windows 多媒体 API |
 | `-lmsimg32` | 透明位图 AlphaBlend |
+| `-lgdiplus` | **GDI+** 高级图形接口（抗锯齿与高质量渲染） |
 
-### Code::Blocks 项目
+### Code::Blocks / VS Code 项目
 
 项目包含 `ChartSystem.cbp`，在 Code::Blocks 中打开即可编译。**首次使用请修改** `-LD:\easyx4mingw_25.9.10\lib64` 和 `-ID:\easyx4mingw_25.9.10\include` 为你的 EasyX 路径。
+
+项目中也包含了 VS Code 配置(`.vscode`)，可实现开箱即用的开发体验。
 
 ## 功能
 
 | 功能 | 说明 |
 | ---- | ---- |
+| **高质量渲染** | 基于 **GDI+** 实现平滑抗锯齿绘图（折线、圆角、饼图等）与 ClearType 字体渲染 |
 | **CSV 加载** | 支持 UTF-8 BOM / ANSI，自动跳过标题行 |
 | **四种图表** | Bar（柱状图）、Pie（饼图）、Line（折线图）、Area（面积图） |
 | **六套主题** | Classic / Ocean / Warm / Forest / Purple / Dark，一键切换 |
@@ -134,7 +138,7 @@ Shenzhen,680
 ```text
 ChartSystem/
 ├── src/
-│   ├── main.cpp                       # 入口：状态管理 + 事件循环
+│   ├── main.cpp                       # 入口：状态管理 + GDI+生命周期 + 事件循环
 │   ├── common/
 │   │   └── Types.h                    # 公共类型：tstring / tstringstream
 │   ├── app/
@@ -160,6 +164,7 @@ ChartSystem/
 │   │   ├── MainPage.h / .cpp          # 主页面
 │   │   └── ChartPage.h / .cpp         # 图表页面
 │   └── utils/
+│       ├── AntiAlias.h                # GDI+ 抗锯齿绘图核心封装
 │       ├── RenderUtils.h              # drawRoundRectFill() 圆角矩形填充
 │       ├── DataAnalyzer.h             # 统计 + 排序（全部内联）
 │       ├── FileDataReader.h / .cpp    # CSV 读取 / 解析
@@ -168,6 +173,7 @@ ChartSystem/
 │       ├── StringUtils.h / .cpp       # 字符串编码转换（UTF-8/ANSI → TCHAR）
 │       └── ClipboardUtils.h / .cpp    # Win32 剪贴板操作
 ├── data/                              # 示例 CSV 数据
+├── .vscode/                           # VS Code 配置文件
 ├── ChartSystem.cbp                    # Code::Blocks 项目文件
 ├── build.bat                          # 一键编译脚本
 └── README.md
@@ -184,9 +190,9 @@ ChartSystem/
 ```text
 Chart（抽象基类 — draw() / applyTheme() 纯虚）
 ├── BarChart      柱状图：坐标轴 + Y轴网格刻度 + 多色柱子 + 数值标签
-├── PieChart      饼图：扇形 + 图例 + 百分比标签
-└── LineChart     折线图：坐标轴 + 网格 + 连线 + 数据点 + Y轴刻度
-    └── AreaChart    面积图：复用坐标计算，折线下填充
+├── PieChart      饼图：抗锯齿扇形 + 图例 + 百分比标签
+└── LineChart     折线图：坐标轴 + 网格 + 平滑连线 + 数据点 + Y轴刻度
+    └── AreaChart    面积图：复用坐标计算，折线下抗锯齿填充
 ```
 
 坐标计算（`PlotCoords` / `computePlotCoords()`）提取到 `ChartCoordinates.h/.cpp`，`LineChart` 和 `AreaChart` 共用。Y 轴网格刻度提取到 `ChartGridRenderer.h/.cpp`，`BarChart`、`LineChart`、`AreaChart` 共用。
@@ -195,7 +201,7 @@ Chart（抽象基类 — draw() / applyTheme() 纯虚）
 
 ```text
 Widget（抽象基类 — 位置/尺寸/事件虚函数）
-├── Button       独立按钮：圆角 + 三态颜色 + 投影 + onClick 回调
+├── Button       独立按钮：抗锯齿圆角 + 三态颜色 + 投影 + onClick 回调
 └── Card         圆角背景框：阴影 + 标题
     ├── TextInput    输入框：叠加文字 + 光标 + 键盘处理
     ├── DisplayBox   只读展示框
@@ -227,6 +233,7 @@ std::unique_ptr<Chart> createChart(ChartType, title, data, theme);
 
 ### 设计要点
 
+- **渲染引擎升级**：通过自研的 `AntiAlias.h` 桥接层无缝集成了 **GDI+**，使原本基于 GDI 的粗糙边缘获得了平滑的抗锯齿效果和 ClearType 字体增强。
 - **容器化事件分发**：`Page` 持有 `vector<Widget*>`，事件遍历分发，新增控件只需 `push_back`
 - **Card 继承复用**：`TextInput`、`PopupCard` 继承 `Card`，背景和阴影由基类绘制
 - **多态主题**：`Chart::applyTheme()` 和 `Page::applyTheme()` 各自实现，图表和 UI 同步变色
@@ -251,6 +258,7 @@ std::unique_ptr<Chart> createChart(ChartType, title, data, theme);
 - **[EasyX](https://easyx.cn/)** for MinGW — Windows 轻量图形库
 - **Windows 7+** — Win32 API
 - **GDI32 / OLE32 / OLEAut32** — 系统图形与 COM 库
+- **Gdiplus** — GDI+ 图形渲染核心模块
 
 ## 示例数据
 

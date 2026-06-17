@@ -7,6 +7,7 @@
 #include "ui/MainPage.h"
 #include "ui/ChartPage.h"
 #include "utils/DataAnalyzer.h"
+#include "utils/AntiAlias.h"
 
 int main()
 {
@@ -20,6 +21,7 @@ int main()
 
     // ---- 初始化窗口 ----
     initgraph(1200, 800);
+    AA::Init();  // 初始化 GDI+ 抗锯齿引擎
     setbkcolor(PRESET_THEMES[themeIdx].bgColor);
     HWND hwnd = GetHWnd();
 
@@ -142,6 +144,7 @@ int main()
     }
 
     std::cout << "Program exited";
+    AA::Shutdown();  // 释放 GDI+ 资源
     closegraph();
     return 0;
 }

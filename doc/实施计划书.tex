@@ -1,0 +1,86 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+
+\setlength{\parindent}{0pt}
+
+\begin{document}
+% Force cache refresh
+
+\begin{center}
+    {\Large \textbf{\underline{信息工程学院实践教学环节}}}\\[1em]
+    {\Large \textbf{\underline{《面向对象的图表生成系统》实施计划书}}}
+\end{center}
+
+\vspace{1em}
+
+\textbf{姓名：}吉天睿 \hfill \textbf{学号：}2025013446 \hfill \textbf{班级：}计算机类2505 \\[0.5em]
+\textbf{邮箱：}tianruiji@nwafu.edu.cn
+
+\vspace{1em}
+
+\renewcommand{\arraystretch}{1.5}
+\begin{longtable}{|>{\centering\arraybackslash}p{2.5cm}|p{4.7cm}|>{\centering\arraybackslash}p{2.5cm}|p{\dimexpr\textwidth-9.7cm-8\tabcolsep-5\arrayrulewidth\relax}|}
+\hline
+\textbf{项目名称} & \multicolumn{3}{p{\dimexpr\textwidth-2.5cm-6\tabcolsep-3\arrayrulewidth\relax}|}{面向对象的图表生成系统} \\
+\hline
+\textbf{指导教师} & 赵研 & \textbf{电子邮件} & yanzhao@nwafu.edu.cn \\
+\hline
+\textbf{任务描述} & \multicolumn{3}{p{\dimexpr\textwidth-2.5cm-6\tabcolsep-3\arrayrulewidth\relax}|}{%
+\textbf{一、总体任务：}\newline
+1. 数据加载：从CSV文件读取数据转化为图表\newline
+2. 图表绘制：实现柱状图、饼图、折线图三种基本图表类型，并从折线图派生出面积图。通过抽象基类统一接口。\newline
+3. 数据排序：支持按数值升序/降序、按名称升序/降序排序，并且支持重置为原始数据。\newline
+4. 数据统计：计算并显示数据条数、最大值、最小值、平均值、中位数。\newline
+5. 图片导出：支持单个图表导出和多类型图表批量导出为PNG文件。\newline
+6. 图形界面：基于EasyX实现主页面和图表页面，包含按钮、输入框、弹窗等交互控件。\newline
+7. 主题切换：提供六套颜色主题，图表颜色与界面同步切换。
+\vspace{0.5em}\newline
+\textbf{二、个人任务：}\newline
+1. 主程序流程设计\newline
+2. 页面类体系设计\newline
+3. 基础界面控件实现\newline
+4. 导出路径对话框\newline
+5. 主题切换与界面美化\newline
+6. 项目运行配置
+} \\
+\hline
+\textbf{技术路线} & \multicolumn{3}{p{\dimexpr\textwidth-2.5cm-6\tabcolsep-3\arrayrulewidth\relax}|}{%
+1. 按需分析与模块划分：分析项目功能需求，确定界面层与图表层的分工。\newline
+2. 类图设计：设计Widget、Button、Card、TextInput、Page等类的继承关系和接口。\newline
+3. 控件实现：实现Widget基类和派生类Button、Card、TextInput、PopupCard。\newline
+4. 页面实现：实现Page基类和派生类MainPage、ChartPage，集成控件并绑定回调函数。\newline
+5. 主程序集成：编写main.cpp，初始化窗口、创建页面、实现事件循环。\newline
+6. 主题系统实现：定义ColorTheme结构体，实现主题切换逻辑。\newline
+调试与测试：测试各控件交互、页面切换、主题切换、导出功能。\newline
+7. 使用VSCode作为代码编辑器，使用EasyX作为基础图形库，CPP作为编程语言进行实现。
+\vspace{0.5em}\newline
+下面给出整体流程图：
+} \\
+\hline
+\textbf{进度安排} & \multicolumn{3}{p{\dimexpr\textwidth-2.5cm-6\tabcolsep-3\arrayrulewidth\relax}|}{%
+6月14日：选题\newline
+6月15日：项目总体设计与模块划分\newline
+6月16日：设计类图\newline
+6月17日---20日：编写代码，中期检查\newline
+6月21日---23日：编写代码，程序调试\newline
+6月24日---25日：撰写实习报告，制作幻灯片准备答辩\newline
+6月26日：实习答辩
+} \\
+\hline
+\textbf{考核要求} & \multicolumn{3}{p{\dimexpr\textwidth-2.5cm-6\tabcolsep-3\arrayrulewidth\relax}|}{%
+总成绩 ＝ 考勤成绩 × 20\% + 答辩成绩 × 30\% + 报告成绩 × 50\%
+} \\
+\hline
+\end{longtable}
+
+\vspace{2em}
+\hfill \textbf{日期：} 2026年6月17日
+
+\end{document}

@@ -1,4 +1,5 @@
 #include "MainPage.h"
+#include "../utils/AntiAlias.h"
 
 // MainPage 主页面
 
@@ -75,7 +76,7 @@ void MainPage::draw()
     setfillcolor(m_theme.bgColor);
     solidrectangle(0, 0, 1200, 800);
 
-    settextstyle(34, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD, false, false, false);
+    AA::setTextStyleAA(34, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD);
     settextcolor(m_theme.accentColor);
     outtextxy(50, 20, _T("Chart System"));
     setlinecolor(darkenColor(m_theme.bgColor, 30));
@@ -91,7 +92,7 @@ void MainPage::drawSidePanel()
     setlinecolor(darkenColor(m_theme.cardColor, 40));
     line(400, 82 + 46, 400 + 800 - 40, 82 + 46);
 
-    settextstyle(22, 0, _T("Microsoft YaHei"), 0, 0, FW_SEMIBOLD, false, false, false);
+    AA::setTextStyleAA(22, 0, _T("Microsoft YaHei"), 0, 0, FW_SEMIBOLD);
     settextcolor(m_theme.textColor);
 
     int ty = 82 + 66, lineH = 42;
@@ -116,7 +117,7 @@ void MainPage::drawSidePanel()
     setlinecolor(darkenColor(m_theme.cardColor, 40));
     line(400, 558 + 46, 400 + 800 - 40, 558 + 46);
 
-    settextstyle(20, 0, _T("Microsoft YaHei"), 0, 0, FW_SEMIBOLD, false, false, false);
+    AA::setTextStyleAA(20, 0, _T("Microsoft YaHei"), 0, 0, FW_SEMIBOLD);
     settextcolor(darkenColor(m_theme.textColor, 50));
 
     tstring tips[] = {

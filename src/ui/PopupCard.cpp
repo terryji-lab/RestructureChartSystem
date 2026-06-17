@@ -1,5 +1,6 @@
 #include "PopupCard.h"
 #include "../chart/Chart.h"   // darkenColor, lightenColor
+#include "../utils/AntiAlias.h"
 
 PopupCard::PopupCard(int x, int y, int w, int h, const tstring& title)
     : Card(x, y, w, h, title, 0)       // radius=0：直角矩形（弹窗风格）
@@ -43,41 +44,36 @@ void PopupCard::draw() const
     setfillcolor(m_accentColor);
     solidrectangle(m_x, m_y, m_x + m_w, m_y + 8);
 
-    // 5. 图标（成功 ✓ / 失败 ✕）
+    // 5. 图标（成功 ✓ / 失败 ✕）—— 抗锯齿圆形
     int cx = m_x + 70;
     int cy = m_y + 78;
-    setlinecolor(m_accentColor);
-    setfillcolor(lightenColor(m_accentColor, 95));
-    fillcircle(cx, cy, 28);
+    AA::fillcircle(cx, cy, 28, lightenColor(m_accentColor, 95), m_accentColor);
 
-    setlinecolor(m_accentColor);
-    setlinestyle(PS_SOLID, 4);
     if (m_isError)
     {
-        line(cx - 12, cy - 12, cx + 12, cy + 12);
-        line(cx + 12, cy - 12, cx - 12, cy + 12);
+        AA::line(cx - 12, cy - 12, cx + 12, cy + 12, m_accentColor, 4);
+        AA::line(cx + 12, cy - 12, cx - 12, cy + 12, m_accentColor, 4);
     }
     else
     {
-        line(cx - 13, cy, cx - 3, cy + 10);
-        line(cx - 3, cy + 10, cx + 16, cy - 12);
+        AA::line(cx - 13, cy, cx - 3, cy + 10, m_accentColor, 4);
+        AA::line(cx - 3, cy + 10, cx + 16, cy - 12, m_accentColor, 4);
     }
-    setlinestyle(PS_SOLID, 1);
 
     // 6. 标题
     setbkmode(TRANSPARENT);
     settextcolor(m_titleColor);
-    settextstyle(28, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD, false, false, false);
+    AA::setTextStyleAA(28, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD);
     outtextxy(m_x + 118, m_y + 48, m_title.c_str());
 
     // 7. 副标题/消息
-    settextstyle(18, 0, _T("Microsoft YaHei"), 0, 0, FW_NORMAL, false, false, false);
+    AA::setTextStyleAA(18, 0, _T("Microsoft YaHei"), 0, 0, FW_NORMAL);
     settextcolor(darkenColor(m_titleColor, 35));
     outtextxy(m_x + 118, m_y + 92, m_message.c_str());
 
     // 8. 详情文字
     settextcolor(m_accentColor);
-    settextstyle(18, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD, false, false, false);
+    AA::setTextStyleAA(18, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD);
     outtextxy(m_x + 118, m_y + 122, m_detail.c_str());
 
     // 9. OK 按钮

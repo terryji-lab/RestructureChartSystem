@@ -29,7 +29,7 @@ echo Building ChartSystem...
   %SRC%\utils\ImageExporter.cpp ^
   %SRC%\utils\StringUtils.cpp ^
   %SRC%\utils\ClipboardUtils.cpp ^
-  -leasyx -lgdi32 -lole32 -loleaut32 -luuid -lwinmm -lmsimg32 ^
+  -leasyx -lgdi32 -lole32 -loleaut32 -luuid -lwinmm -lmsimg32 -lgdiplus ^
   -o E:\ChartSystem\main.exe
 
 if %ERRORLEVEL% EQU 0 (

@@ -1,5 +1,6 @@
 #include "ChartPage.h"
 #include "utils/DataAnalyzer.h"
+#include "../utils/AntiAlias.h"
 
 // ChartPage 图表页面
 
@@ -78,7 +79,7 @@ void ChartPage::draw()
 
     Page::draw();
 
-    settextstyle(22, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD, false, false, false);
+    AA::setTextStyleAA(22, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD);
     settextcolor(m_theme.accentColor);
     outtextxy(66, 13, m_title.c_str());
 
@@ -89,7 +90,7 @@ void ChartPage::draw()
         _stprintf_s(buf, _T("Count: %d   Max: %.0f   Min: %.0f   Avg: %.1f   Med: %.1f"),
             da.count(), da.max(), da.min(), da.average(), da.median());
 
-        settextstyle(17, 0, _T("Microsoft YaHei"), 0, 0, FW_SEMIBOLD, false, false, false);
+        AA::setTextStyleAA(17, 0, _T("Microsoft YaHei"), 0, 0, FW_SEMIBOLD);
         settextcolor(m_theme.textColor);
         int tw = textwidth(buf);
         outtextxy(600 - tw / 2, 48 + 3, buf);
