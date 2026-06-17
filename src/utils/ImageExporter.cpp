@@ -2,13 +2,8 @@
 #include <cstdio>
 #include <tchar.h>
 
-// ==================== 导出图表为 PNG 图片 ====================
-// 实现原理：
-//   1. 创建一个离屏 IMAGE 对象（1200×800）
-//   2. 将 EasyX 的工作图像切换为该离屏图像
-//   3. 用白色清空背景，调用 chart.draw() 绘制图表
-//   4. 恢复工作图像到屏幕，将离屏图像保存为 PNG
-//   5. 通过尝试打开文件来验证导出是否成功
+// 导出图表为 PNG 图片
+// 实现原理：创建离屏图像 → 切换工作图像 → 绘制图表 → 保存 PNG → 验证文件
 bool ImageExporter::exportChart(
     Chart& chart,
     const tstring& filePath

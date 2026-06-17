@@ -2,12 +2,8 @@
 #include "chart/Chart.h"
 #include <easyx.h>
 
-// ==================== 图片导出类 ====================
-// 将图表渲染到离屏图像上，并以 PNG 格式保存到磁盘。
-// 默认导出尺寸为 1200×800 像素，与窗口大小一致。
-//
-// 使用方式：
-//   ImageExporter::exportChart(chart, _T("output.png"));
+// 图片导出类，将图表渲染到离屏图像并以 PNG 格式保存到磁盘
+// 默认导出尺寸为 1200×800 像素，与窗口大小一致
 class ImageExporter
 {
 private:

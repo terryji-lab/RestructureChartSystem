@@ -1,7 +1,7 @@
 #pragma once
 #include "LineChart.h"
 
-// ==================== 面积图类 ====================
+// 面积图类
 class AreaChart : public LineChart
 {
 private:

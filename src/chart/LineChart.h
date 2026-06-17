@@ -2,7 +2,7 @@
 #include "Chart.h"
 #include <vector>
 
-// ==================== 折线图类 ====================
+// 折线图类
 class LineChart : public Chart
 {
 protected:
@@ -12,22 +12,10 @@ protected:
     COLORREF gridColor;
     COLORREF textColor;
 
-    // 坐标计算结果（供子类 AreaChart 复用）
-    struct PlotCoords
-    {
-        std::vector<int> ptX, ptY;
-        int originX, originY;
-        int axisTopY, axisRightX;
-        int plotWidth, plotHeight;
-    };
-
     double getMaxValue() const;
     void drawTitle();
     void drawAxis();
     void drawGrid();
-
-    // 计算绘图坐标（子类可复用）
-    PlotCoords computePlotCoords() const;
 
 public:
     LineChart(const tstring& chartTitle,

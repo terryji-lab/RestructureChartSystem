@@ -2,7 +2,7 @@
 #include "Chart.h"
 #include <vector>
 
-// ==================== 饼图类 ====================
+// 饼图类
 class PieChart : public Chart
 {
 private:

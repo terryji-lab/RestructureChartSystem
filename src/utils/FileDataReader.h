@@ -2,28 +2,14 @@
 #include "chart/Chart.h"
 #include <vector>
 
-// ==================== CSV 文件数据读取类 ====================
-// 负责从 CSV 文件中解析图表数据。支持 UTF-8 和 ANSI 编码，
-// 自动跳过 BOM 和标题行。每行格式为：名称,数值
-//
-// 使用方式：
-//   FileDataReader reader;
-//   if (reader.loadFromPath(_T("data.csv"))) {
-//       auto data = reader.getData();
-//   } else {
-//       auto err = reader.getErrorMessage();
-//   }
+// CSV 文件数据读取类，负责从 CSV 文件中解析图表数据
+// 支持 UTF-8 和 ANSI 编码，自动跳过 BOM 和标题行，每行格式为：名称,数值
 class FileDataReader
 {
 private:
     tstring filePath;                     // CSV 文件路径
     std::vector<ChartItem> data;          // 解析后的图表数据
     tstring errorMessage;                 // 错误信息（加载失败时设置）
-
-private:
-    // 将 UTF-8/ANSI 字符串转换为 TCHAR 字符串
-    // Unicode 编译时使用 MultiByteToWideChar，ANSI 编译时直接返回
-    static tstring stringToTString(const std::string& s);
 
 public:
     FileDataReader();

@@ -4,7 +4,7 @@
 
 const double PI = 3.14159265358979323846;
 
-// ==================== 构造 ====================
+// 构造函数
 PieChart::PieChart(const tstring& chartTitle,
                    const std::vector<ChartItem>& chartData,
                    int x, int y, int w, int h, int r)
@@ -23,7 +23,7 @@ PieChart::PieChart(const tstring& chartTitle,
     };
 }
 
-// ==================== 应用主题配色 ====================
+// 应用主题配色
 void PieChart::applyTheme(const ColorTheme& theme)
 {
     if (!theme.barPalette.empty())
@@ -31,7 +31,7 @@ void PieChart::applyTheme(const ColorTheme& theme)
     m_textColor = theme.textColor;
 }
 
-// ==================== 计算数据总和 ====================
+// 计算数据总和
 double PieChart::getTotal() const
 {
     double sum = 0;
@@ -40,18 +40,28 @@ double PieChart::getTotal() const
     return sum;
 }
 
-// ==================== 主绘制函数 ====================
+// 主绘制函数
 void PieChart::draw()
 {
     double total = getTotal();
 
-    // 数据为空或总和为零时显示提示
-    if(data.empty() || total <= 0)
+    // 数据为空时显示提示
+    if(data.empty())
     {
         settextcolor(RED);
         settextstyle(40, 0, _T("Arial"));
         int tw = textwidth(_T("No Data"));
         outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("No Data"));
+        return;
+    }
+
+    // 总和无效时显示提示
+    if(total <= 0)
+    {
+        settextcolor(RED);
+        settextstyle(40, 0, _T("Arial"));
+        int tw = textwidth(_T("Invalid Data"));
+        outtextxy(leftX + (chartWidth - tw) / 2, topY + chartHeight / 2 - 20, _T("Invalid Data"));
         return;
     }
 
@@ -96,7 +106,7 @@ void PieChart::draw()
     drawLegend();
 }
 
-// ==================== 绘制图例 ====================
+// 绘制图例
 // 在饼图右侧绘制颜色块 + 名称 + 数值的图例列表
 void PieChart::drawLegend()
 {

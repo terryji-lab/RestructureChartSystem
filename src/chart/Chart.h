@@ -4,13 +4,14 @@
 #include <vector>
 #include "../common/Types.h"
 
+//基础数据单元
 struct ChartItem
 {
     tstring name;
     double value;
 };
 
-// ==================== 颜色主题 ====================
+//颜色主题
 struct ColorTheme
 {
     tstring name;
@@ -26,7 +27,7 @@ struct ColorTheme
     COLORREF accentColor;
 };
 
-// ==================== 颜色工具函数（内联，所有图表类共享）====================
+//颜色工具函数，用于实现颜色变深/暗
 inline COLORREF darkenColor(COLORREF c, int amount)
 {
     int r = GetRValue(c) - amount; if (r < 0) r = 0;
@@ -43,7 +44,7 @@ inline COLORREF lightenColor(COLORREF c, int amount)
     return RGB(r, g, b);
 }
 
-// ==================== 抽象基类 ====================
+//抽象基类Chart
 class Chart
 {
 protected:

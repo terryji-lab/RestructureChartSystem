@@ -1,6 +1,7 @@
 #include "TextInput.h"
+#include "../utils/ClipboardUtils.h"
 
-// ==================== 构造 ====================
+// 构造函数
 TextInput::TextInput(int x, int y, int w, int h,
                      const tstring& placeholder, int radius)
     : Card(x, y, w, h, _T(""), radius)
@@ -11,33 +12,29 @@ TextInput::TextInput(int x, int y, int w, int h,
 {
 }
 
-// ==================== 绘制 ====================
+// 绘制
 void TextInput::draw() const
 {
-    // Card 基类绘制阴影 + 圆角背景
     Card::draw();
 
     setbkmode(TRANSPARENT);
 
     if (m_text.empty())
     {
-        // 占位文字（灰色，提示用户输入）
         settextcolor(RGB(0xAA, 0xAA, 0xAA));
         settextstyle(20, 0, _T("Segoe UI"), 0, 0, FW_SEMIBOLD, false, false, false);
         outtextxy(m_x + 10, m_y + (m_h - 18) / 2, m_placeholder.c_str());
     }
     else
     {
-        // 用户输入的文字（黑色）
         settextcolor(BLACK);
         settextstyle(20, 0, _T("Segoe UI"), 0, 0, FW_SEMIBOLD, false, false, false);
         outtextxy(m_x + 10, m_y + (m_h - 18) / 2, m_text.c_str());
     }
 
-    // 闪烁光标（仅在焦点状态下绘制）
+    // 闪烁光标
     if (m_focused)
     {
-        // 计算光标 X 位置：从左边距 + 光标前文本宽度
         int cursorX = m_x + 10;
         if (m_cursorPos > 0)
             cursorX += (int)textwidth(m_text.substr(0, m_cursorPos).c_str());
@@ -47,8 +44,7 @@ void TextInput::draw() const
     }
 }
 
-// ==================== 鼠标事件 ====================
-// 点击时获取焦点，光标移到文本末尾
+// 鼠标事件：点击获取焦点
 bool TextInput::handleMouseDown(int mx, int my)
 {
     bool clicked = Card::contains(mx, my);
@@ -57,65 +53,54 @@ bool TextInput::handleMouseDown(int mx, int my)
     return clicked;
 }
 
-// ==================== 键盘事件 ====================
-// 处理剪贴板快捷键和文本编辑键
+// 键盘事件
 void TextInput::handleKeyDown(WPARAM vkcode)
 {
-    // 检测 Ctrl 键是否按下
     bool ctrl = (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0;
 
     if (ctrl)
     {
         switch (vkcode)
         {
-        case 'C': copy();            break;     // Ctrl+C 复制
-        case 'V': paste();           break;     // Ctrl+V 粘贴
-        case 'X': cut();             break;     // Ctrl+X 剪切
-        case 'A': m_cursorPos = m_text.length(); break; // Ctrl+A 全选（将光标移到末尾）
+        case 'C': copy();            break;
+        case 'V': paste();           break;
+        case 'X': cut();             break;
+        case 'A': m_cursorPos = m_text.length(); break;
         }
         return;
     }
 
-    // 非 Ctrl 组合键：文本编辑
     switch (vkcode)
     {
-    case VK_BACK:                                // 退格：删除光标前一个字符
+    case VK_BACK:
         if (m_cursorPos > 0) {
             m_text.erase(m_cursorPos - 1, 1);
             m_cursorPos--;
         }
         break;
-
-    case VK_DELETE:                              // Delete：删除光标后一个字符
-        if (m_cursorPos < m_text.length()) {
+    case VK_DELETE:
+        if (m_cursorPos < m_text.length())
             m_text.erase(m_cursorPos, 1);
-        }
         break;
-
-    case VK_LEFT:                                // 左箭头：光标左移
+    case VK_LEFT:
         if (m_cursorPos > 0) m_cursorPos--;
         break;
-
-    case VK_RIGHT:                               // 右箭头：光标右移
+    case VK_RIGHT:
         if (m_cursorPos < m_text.length()) m_cursorPos++;
         break;
-
-    case VK_HOME:                                // Home：光标移到开头
+    case VK_HOME:
         m_cursorPos = 0;
         break;
-
-    case VK_END:                                 // End：光标移到末尾
+    case VK_END:
         m_cursorPos = m_text.length();
         break;
     }
 }
 
-// ==================== 字符输入 ====================
-// 过滤控制字符，只在光标位置插入可打印字符
+// 字符输入
 void TextInput::handleChar(WPARAM ch)
 {
     TCHAR c = (TCHAR)ch;
-    // 过滤控制字符（保留空格及以上可打印字符，排除 DEL(127)）
     if (c >= 32 && c != 127)
     {
         m_text.insert(m_cursorPos, 1, c);
@@ -123,80 +108,32 @@ void TextInput::handleChar(WPARAM ch)
     }
 }
 
-// ==================== 剪贴板操作 ====================
+// --- 剪贴板操作（委托给 ClipboardUtils）---
 
-// 复制：将当前文本写入系统剪贴板
 void TextInput::copy()
 {
-    if (m_text.empty()) return;
-    if (!OpenClipboard(GetHWnd())) return;
-
-    EmptyClipboard();
-
-    size_t size = (m_text.length() + 1) * sizeof(TCHAR);
-    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, size);
-    if (hMem)
-    {
-        TCHAR* pMem = (TCHAR*)GlobalLock(hMem);
-        if (pMem)
-        {
-            _tcscpy_s(pMem, m_text.length() + 1, m_text.c_str());
-            GlobalUnlock(hMem);
-        }
-#ifdef UNICODE
-        SetClipboardData(CF_UNICODETEXT, hMem);    // Unicode 文本格式
-#else
-        SetClipboardData(CF_TEXT, hMem);            // ANSI 文本格式
-#endif
-    }
-
-    CloseClipboard();
+    ClipboardUtils::copyToClipboard(m_text, GetHWnd());
 }
 
-// 粘贴：从系统剪贴板读取文本并插入到光标位置
 void TextInput::paste()
 {
-    // 检查剪贴板是否有可用格式
-    if (!IsClipboardFormatAvailable(
-#ifdef UNICODE
-        CF_UNICODETEXT
-#else
-        CF_TEXT
-#endif
-    )) return;
-
-    if (!OpenClipboard(GetHWnd())) return;
-
-#ifdef UNICODE
-    HANDLE hData = GetClipboardData(CF_UNICODETEXT);
-#else
-    HANDLE hData = GetClipboardData(CF_TEXT);
-#endif
-
-    if (hData)
+    tstring clip = ClipboardUtils::pasteFromClipboard(GetHWnd());
+    if (!clip.empty())
     {
-        TCHAR* pData = (TCHAR*)GlobalLock(hData);
-        if (pData)
-        {
-            m_text.insert(m_cursorPos, pData);
-            m_cursorPos += _tcslen(pData);         // 光标移到粘贴内容末尾
-            GlobalUnlock(hData);
-        }
+        m_text.insert(m_cursorPos, clip);
+        m_cursorPos += clip.length();
     }
-
-    CloseClipboard();
 }
 
-// 剪切：复制当前文本到剪贴板，然后清空文本框
 void TextInput::cut()
 {
     if (m_text.empty()) return;
-    copy();
+    ClipboardUtils::copyToClipboard(m_text, GetHWnd());
     m_text.clear();
     m_cursorPos = 0;
 }
 
-// ==================== 属性设置/获取 ====================
+// 属性设置/获取
 void TextInput::setText(const tstring& text) { m_text = text; m_cursorPos = m_text.length(); }
 const tstring& TextInput::getText() const     { return m_text; }
 bool TextInput::isFocused() const             { return m_focused; }

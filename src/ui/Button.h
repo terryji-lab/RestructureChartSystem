@@ -5,14 +5,9 @@
 #include "Widget.h"
 #include "../common/Types.h"
 
-// ==================== 按钮控件类 ====================
-// 继承 Widget，实现圆角按钮。支持三态视觉反馈：
-//   - Normal（正常）: 基础颜色
-//   - Hover（悬停）: 鼠标移入时变亮
-//   - Press（按下）: 鼠标按下时变暗
-//
-// 包含阴影效果、圆角边框、居中文字，文字使用 Microsoft YaHei 字体。
-// 通过 std::function 回调实现点击事件。
+// 按钮控件类，继承 Widget，实现圆角按钮
+// 支持三态视觉反馈：Normal（正常）、Hover（悬停）、Press（按下）
+// 包含阴影效果、圆角边框、居中文字，通过 std::function 回调实现点击事件
 class Button : public Widget
 {
 public:
@@ -20,14 +15,14 @@ public:
            std::function<void()> onClick = nullptr,
            int cornerRadius = 8);
 
-    // ── 事件处理（override Widget）──
+    // 事件处理（override Widget）
     bool contains(int mx, int my) const override;
     bool handleMouseMove(int mx, int my) override;
     bool handleMouseDown(int mx, int my) override;
     bool handleMouseUp(int mx, int my)   override;
     void draw() const override;
 
-    // ── 属性设置 ──
+    // 属性设置
     void setText(const tstring& text);
     void setPosition(int x, int y);
     void setVisible(bool visible);              // 控制按钮可见性
@@ -42,7 +37,7 @@ public:
     void setColorShadow(COLORREF color);
     void setRadius(int r);                      // 圆角半径
 
-    // ── 属性获取 ──
+    // 属性获取
     const tstring& getText() const;
     bool isVisible() const;
 

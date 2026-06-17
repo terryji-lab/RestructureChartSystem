@@ -1,8 +1,7 @@
 #include "Button.h"
 #include "../utils/RenderUtils.h"
 
-// ==================== 构造 ====================
-// 默认使用蓝色系配色方案
+// 构造函数，默认使用蓝色系配色方案
 Button::Button(int x, int y, int width, int height, const tstring& text,
                std::function<void()> onClick, int cornerRadius)
     : Widget(x, y, width, height)
@@ -21,7 +20,7 @@ Button::Button(int x, int y, int width, int height, const tstring& text,
 {
 }
 
-// ==================== 事件处理 ====================
+// 事件处理
 
 // 命中检测：仅在可见时生效
 bool Button::contains(int mx, int my) const
@@ -65,7 +64,7 @@ bool Button::handleMouseUp(int mx, int my)
     return wasPressed;                          // 需要重绘恢复外观
 }
 
-// ==================== 绘制 ====================
+// 绘制
 void Button::draw() const
 {
     if (!m_visible) return;
@@ -124,7 +123,7 @@ void Button::draw() const
     outtextxy(tx, ty, m_text.c_str());
 }
 
-// ==================== 属性设置器 ====================
+// 属性设置器
 void Button::setText(const tstring& text)        { m_text = text; }
 void Button::setPosition(int x, int y)           { m_x = x; m_y = y; }
 void Button::setVisible(bool visible)            { m_visible = visible; }
