@@ -6,7 +6,7 @@
 #include "TextInput.h"
 #include "Card.h"
 
-// 主页面
+// 主页面：包含侧边栏（数据源加载、图表类型选择、操作按钮）和右侧说明区域
 class MainPage : public Page
 {
 public:
@@ -29,26 +29,30 @@ public:
     void applyTheme(const ColorTheme& theme);
 
 private:
-    void drawSidePanel();
+    void drawSidePanel();       // 绘制右侧使用说明
 
+    // 回调函数
     ChartSelectCallback m_onChartSelect;
     LoadCSVCallback      m_onLoadCSV;
     Callback             m_onExport;
     Callback             m_onThemeSwitch;
     ColorTheme           m_theme;
 
-    Card      m_cardData;
-    Card      m_cardChart;
-    Card      m_cardActions;
-    Card      m_cardInstr;
-    Card      m_cardTips;
+    // 左侧卡片容器
+    Card      m_cardData;       // 数据源区域
+    Card      m_cardChart;      // 图表类型区域
+    Card      m_cardActions;    // 操作按钮区域
+    // 右侧卡片容器
+    Card      m_cardInstr;      // 使用说明
+    Card      m_cardTips;       // 提示信息
 
-    TextInput txtCSV;
-    Button    btnReadCSV;
-    Button    btnBarChart;
-    Button    btnPieChart;
-    Button    btnLineChart;
-    Button    btnAreaChart;
-    Button    btnExport;
-    Button    btnTheme;
+    // 控件
+    TextInput txtCSV;           // CSV 路径输入框
+    Button    btnReadCSV;       // 加载按钮
+    Button    btnBarChart;      // 柱状图
+    Button    btnPieChart;      // 饼图
+    Button    btnLineChart;     // 折线图
+    Button    btnAreaChart;     // 面积图
+    Button    btnExport;        // 批量导出
+    Button    btnTheme;         // 主题切换
 };

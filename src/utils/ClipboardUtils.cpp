@@ -3,6 +3,8 @@
 
 namespace ClipboardUtils {
 
+// 将文本复制到系统剪贴板
+// 通过 GlobalAlloc 分配全局内存，适配 Unicode/ANSI 两种编译模式
 void copyToClipboard(const tstring& text, HWND hwnd)
 {
     if (text.empty() || !OpenClipboard(hwnd)) return;
@@ -29,6 +31,8 @@ void copyToClipboard(const tstring& text, HWND hwnd)
     CloseClipboard();
 }
 
+// 从系统剪贴板读取文本
+// 先检查剪贴板格式是否可用，再打开读取
 tstring pasteFromClipboard(HWND hwnd)
 {
     tstring result;

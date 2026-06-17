@@ -1,5 +1,8 @@
 #include "Themes.h"
 
+// 6 套预设颜色主题：Classic / Ocean / Warm / Forest / Purple / Dark
+// 每套主题包含：柱状图调色板、坐标轴色、网格色、文字色、背景色、卡片色、
+//              按钮三态色（Normal/Hover/Press）、强调色
 const std::vector<ColorTheme> PRESET_THEMES = {
     // name       barPalette...                                 axis          grid          text          bg              card        btnNormal          btnHover           btnPress           accent
     { _T("Classic"), { RGB(228,87,86), RGB(250,176,58), RGB(245,210,67), RGB(99,190,123), RGB(78,160,212), RGB(148,108,189), RGB(237,125,158), RGB(100,181,180) }, RGB(80,80,80), RGB(220,220,220), RGB(40,40,40), RGB(242,244,248), RGB(255,255,255), RGB(70,130,210), RGB(100,160,235), RGB(50,100,175), RGB(45,95,170) },

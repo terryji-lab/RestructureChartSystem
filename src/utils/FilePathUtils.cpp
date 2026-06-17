@@ -3,11 +3,13 @@
 #include <tchar.h>
 #include <cctype>
 
+// 判断字符是否为路径分隔符（\\ 或 /）
 static bool isPathSeparator(TCHAR ch)
 {
     return ch == _T('\\') || ch == _T('/');
 }
 
+// 将所有正斜杠统一为反斜杠
 static tstring normalizeSeparators(tstring path)
 {
     for (size_t i = 0; i < path.length(); ++i)
@@ -17,6 +19,7 @@ static tstring normalizeSeparators(tstring path)
     return path;
 }
 
+// 检查路径是否以 .png 结尾（忽略大小写）
 static bool hasPngExtension(const tstring& path)
 {
     if (path.length() < 4) return false;
@@ -26,6 +29,7 @@ static bool hasPngExtension(const tstring& path)
     return ext == _T(".png");
 }
 
+// 检查目录是否存在（通过 GetFileAttributes）
 static bool directoryExists(const tstring& directory)
 {
     if (directory.empty()) return true;
@@ -33,6 +37,7 @@ static bool directoryExists(const tstring& directory)
     return attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 }
 
+// 判断路径是否为驱动器根目录（如 C:\ ）
 static bool isDriveRoot(const tstring& path)
 {
     return path.length() == 3 && path[1] == _T(':') && isPathSeparator(path[2]);
@@ -98,11 +103,14 @@ tstring FilePathUtils::parentDirectory(const tstring& filePath)
     return path.substr(0, pos);
 }
 
+// 递归创建目录结构
+// 逐级解析路径并用 CreateDirectory 创建不存在的目录
 bool FilePathUtils::ensureDirectoryExists(const tstring& directory)
 {
     tstring path = normalizeSeparators(trim(directory));
     if (path.empty()) return true;
 
+    // 去掉尾部多余的分隔符
     while (path.length() > 1 && isPathSeparator(path[path.length() - 1]) && !isDriveRoot(path))
         path.erase(path.length() - 1);
 
@@ -111,6 +119,7 @@ bool FilePathUtils::ensureDirectoryExists(const tstring& directory)
     tstring current;
     size_t pos = 0;
 
+    // 处理盘符（如 C:）
     if (path.length() >= 2 && path[1] == _T(':'))
     {
         current = path.substr(0, 2);
@@ -123,10 +132,12 @@ bool FilePathUtils::ensureDirectoryExists(const tstring& directory)
     }
     else if (!path.empty() && isPathSeparator(path[0]))
     {
+        // 网络路径或根路径
         current = _T("\\");
         pos = 1;
     }
 
+    // 逐级创建子目录
     while (pos < path.length())
     {
         while (pos < path.length() && isPathSeparator(path[pos])) ++pos;
@@ -165,6 +176,7 @@ bool FilePathUtils::endsWithSeparator(const tstring& path)
     return isPathSeparator(path[path.length() - 1]);
 }
 
+// 构建单图表导出路径：若输入为目录则拼文件名，否则补 .png 后缀
 tstring FilePathUtils::buildSingleChartPath(const tstring& inputPath,
                                             const tstring& title,
                                             const tstring& suffix)
@@ -177,6 +189,7 @@ tstring FilePathUtils::buildSingleChartPath(const tstring& inputPath,
     return ensurePngExtension(path);
 }
 
+// 构建批量导出路径：输入为目录时拼接文件名，输入为 .png 时在扩展名前插入后缀
 tstring FilePathUtils::buildExportAllChartPath(const tstring& inputPath,
                                                const tstring& title,
                                                const tstring& suffix)

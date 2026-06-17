@@ -2,6 +2,7 @@
 #include "utils/RenderUtils.h"
 #include "chart/Chart.h"
 
+// 构造函数：居中弹窗，初始化输入框和按钮，绑定回调
 ExportPathDialog::ExportPathDialog(const ColorTheme& theme,
                                    const tstring& title,
                                    const tstring& message,
@@ -39,6 +40,7 @@ ExportPathDialog::ExportPathDialog(const ColorTheme& theme,
     applyTheme(theme);
 }
 
+// 应用主题配色到弹窗各控件
 void ExportPathDialog::applyTheme(const ColorTheme& theme)
 {
     m_theme = theme;
@@ -62,40 +64,51 @@ void ExportPathDialog::applyTheme(const ColorTheme& theme)
     m_cancelButton.setColorText(RGB(255, 255, 255));
 }
 
+// 弹窗绘制：阴影 → 主体背景 → 加粗边框 → 顶部 accent 色条 → 标题/说明 → 输入框 → 按钮
 void ExportPathDialog::draw() const
 {
+    // 阴影
     setfillcolor(m_shadowColor);
     solidrectangle(m_x + 10, m_y + 10, m_x + m_w + 10, m_y + m_h + 10);
 
+    // 主体背景
     setfillcolor(m_bgColor);
     solidrectangle(m_x, m_y, m_x + m_w, m_y + m_h);
 
+    // accent 粗边框
     setlinecolor(m_accentColor);
     setlinestyle(PS_SOLID, 2);
     rectangle(m_x, m_y, m_x + m_w, m_y + m_h);
 
+    // 顶部 accent 色条
     setfillcolor(m_accentColor);
     solidrectangle(m_x, m_y, m_x + m_w, m_y + 8);
 
+    // 标题
     setbkmode(TRANSPARENT);
     settextcolor(m_accentColor);
     settextstyle(28, 0, _T("Microsoft YaHei"), 0, 0, FW_BOLD, false, false, false);
     outtextxy(m_x + 42, m_y + 36, m_title.c_str());
 
+    // 提示消息
     settextcolor(darkenColor(m_textColor, 30));
     settextstyle(18, 0, _T("Microsoft YaHei"), 0, 0, FW_NORMAL, false, false, false);
     outtextxy(m_x + 42, m_y + 82, m_message.c_str());
 
+    // 路径格式提示
     settextcolor(darkenColor(m_textColor, 55));
     settextstyle(15, 0, _T("Microsoft YaHei"), 0, 0, FW_NORMAL, false, false, false);
     outtextxy(m_x + 42, m_y + 176, _T("Relative paths are saved from the project running directory."));
     outtextxy(m_x + 42, m_y + 198, _T("Examples: exports\\chart.png  or  D:\\charts\\chart.png"));
 
+    // 控件绘制
     m_input.draw();
     m_okButton.draw();
     m_cancelButton.draw();
 }
 
+// 模态事件循环：处理键盘（ESC/Enter）、字符输入、鼠标移动和点击，
+// 任何状态变化后立即重绘弹窗
 bool ExportPathDialog::showModal()
 {
     m_done = false;
